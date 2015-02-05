@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>697</width>
-    <height>386</height>
+    <width>687</width>
+    <height>385</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -32,7 +32,7 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
-            <widget class="QPlainTextEdit" name="plainTextEdit_2"/>
+            <widget class="QPlainTextEdit" name="newText"/>
            </item>
           </layout>
          </widget>
@@ -44,13 +44,13 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="0" column="0">
-            <widget class="QPlainTextEdit" name="plainTextEdit"/>
+            <widget class="QPlainTextEdit" name="pasteText"/>
            </item>
           </layout>
          </widget>
         </item>
         <item row="1" column="1" alignment="Qt::AlignRight">
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="convertBut">
           <property name="maximumSize">
            <size>
             <width>100</width>
@@ -91,7 +91,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPlainTextEdit" name="plainTextEdit_3">
+           <widget class="QPlainTextEdit" name="namePrefixText">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -114,7 +114,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPlainTextEdit" name="plainTextEdit_4">
+           <widget class="QPlainTextEdit" name="oldAddrText">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -137,7 +137,30 @@
            </widget>
           </item>
           <item>
-           <widget class="QPlainTextEdit" name="plainTextEdit_5">
+           <widget class="QPlainTextEdit" name="newAddrText">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Actor key:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="keyText">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -150,6 +173,19 @@
         </item>
         <item>
          <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
