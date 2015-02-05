@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>687</width>
-    <height>385</height>
+    <width>1026</width>
+    <height>593</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -44,7 +44,47 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="0" column="0">
-            <widget class="QPlainTextEdit" name="pasteText"/>
+            <widget class="QPlainTextEdit" name="pasteText">
+             <property name="plainText">
+              <string>Begin Map
+   Begin Level
+      Begin Actor Class=StaticMeshActor Name=StaticMeshActor_186 Archetype=StaticMeshActor'Engine.Default__StaticMeshActor'
+         Begin Object Class=StaticMeshComponent Name=StaticMeshComponent0 ObjName=StaticMeshComponent_44 Archetype=StaticMeshComponent'Engine.Default__StaticMeshActor:StaticMeshComponent0'
+            StaticMesh=StaticMesh'CE_ThreeGarbage.Geometry.KlubokMusora001'
+            VertexPositionVersionNumber=1
+            ReplacementPrimitive=None
+            PreviewEnvironmentShadowing=0
+            bAllowApproximateOcclusion=True
+            bForceDirectLightMap=True
+            bCastDynamicShadow=False
+            bUsePrecomputedShadows=True
+            BlockNonZeroExtent=False
+            VisibilityId=39
+            LightingChannels=(bInitialized=True,Static=True,Dynamic=True)
+            RBCollideWithChannels=(Pawn=True)
+            Name=&quot;StaticMeshComponent_44&quot;
+            ObjectArchetype=StaticMeshComponent'Engine.Default__StaticMeshActor:StaticMeshComponent0'
+            CustomProperties 
+         End Object
+         StaticMeshComponent=StaticMeshComponent'StaticMeshComponent_44'
+         Components(0)=StaticMeshComponent'StaticMeshComponent_44'
+         Location=(X=-76592.000000,Y=17943.343750,Z=-3966.969971)
+         Rotation=(Pitch=0,Yaw=0,Roll=-7168)
+         DrawScale=0.500000
+         CollisionType=COLLIDE_BlockWeapons
+         bNoEncroachCheck=True
+         Tag=&quot;StaticMeshActor&quot;
+         Layer=&quot;TrashEgg&quot;
+         CollisionComponent=StaticMeshComponent'StaticMeshComponent_44'
+         Name=&quot;StaticMeshActor_186&quot;
+         ObjectArchetype=StaticMeshActor'Engine.Default__StaticMeshActor'
+      End Actor
+   End Level
+Begin Surface
+End Surface
+End Map</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -74,32 +114,22 @@
        <attribute name="title">
         <string>Settings</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QLabel" name="label">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Name prefix:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPlainTextEdit" name="namePrefixText">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>30</height>
-             </size>
-            </property>
-           </widget>
-          </item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Name prefix:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <widget class="QLabel" name="label_2">
             <property name="maximumSize">
@@ -109,7 +139,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Old adress:</string>
+             <string>Old adress*:</string>
             </property>
            </widget>
           </item>
@@ -120,6 +150,9 @@
               <width>16777215</width>
               <height>30</height>
              </size>
+            </property>
+            <property name="plainText">
+             <string>Test</string>
             </property>
            </widget>
           </item>
@@ -132,7 +165,7 @@
              </size>
             </property>
             <property name="text">
-             <string>New adress:</string>
+             <string>New adress*:</string>
             </property>
            </widget>
           </item>
@@ -143,6 +176,9 @@
               <width>16777215</width>
               <height>30</height>
              </size>
+            </property>
+            <property name="plainText">
+             <string>Test</string>
             </property>
            </widget>
           </item>
@@ -155,7 +191,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Actor key:</string>
+             <string>Actor key*:</string>
             </property>
            </widget>
           </item>
@@ -167,35 +203,140 @@
               <height>30</height>
              </size>
             </property>
+            <property name="plainText">
+             <string>Test</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="addParams">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Add new</string>
+            </property>
            </widget>
           </item>
          </layout>
         </item>
-        <item>
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
+        <item row="2" column="1">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Old adress*:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="editOldAddr">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="plainText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_42">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>New adress*:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="editNewAddr">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="plainText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_41">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Actor key*:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="editKey">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="plainText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListWidget" name="listWidget"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="editBut">
+            <property name="text">
+             <string>Edit</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
-        <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
+        <item row="1" column="0">
+         <widget class="QPlainTextEdit" name="namePrefixText">
+          <property name="maximumSize">
            <size>
-            <width>20</width>
-            <height>40</height>
+            <width>16777215</width>
+            <height>30</height>
            </size>
           </property>
-         </spacer>
+         </widget>
         </item>
        </layout>
       </widget>
