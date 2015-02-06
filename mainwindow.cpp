@@ -20,7 +20,7 @@ void MainWindow::on_convertBut_clicked()
 {
     if (pParams.size()<1) {
         QMessageBox msgBox;
-         msgBox.setText("Fill old adress, new adress, actor key text fields in settings before convert.");
+         msgBox.setText("Add params before convertation.");
          msgBox.exec();
     }else{
         QString pTxt = ui->pasteText->toPlainText();
@@ -30,14 +30,17 @@ void MainWindow::on_convertBut_clicked()
             pTxt = pTxt.replace(i->oldAddr, i->newAddr+"\r\n            "+i->key);
         }
 
-        QRegExp rx("Begin Actor");
-        QStringList actors = pTxt.split(rx);
+        pTxt = pTxt.replace("Location", "RelativeLocation");
+        pTxt = pTxt.replace("Rotation", "RelativeRotation");
+        pTxt = pTxt.replace("\n         End Object", "");
+
+        QStringList actors = pTxt.split("Begin Actor");
         QString resultStr = "Begin Map\r\n   Begin Level";
         int uNumb = 1;
         for (int i = 1; i<actors.count(); i++) {
             QString str = actors[i].trimmed();
             QString type = str.mid(6, str.indexOf(" ")-6);
-            qDebug() << type;
+//            qDebug() << type;
             if (type == "StaticMeshActor") {
                 str = str.replace(QRegExp("Name=\\S+(\\s)"), QString("Name=%1_SMActor_%2\\1").arg(ui->namePrefixText->toPlainText()).arg(uNumb));
                 str = str.replace("Engine.Default__StaticMeshActor:StaticMeshComponent0", "/Script/Engine.Default__StaticMeshActor:StaticMeshComponent0");
@@ -55,11 +58,12 @@ void MainWindow::on_convertBut_clicked()
 
 void MainWindow::on_addParams_clicked()
 {
+    if (ui->oldAddrText->toPlainText().isEmpty() || ui->newAddrText->toPlainText().isEmpty() || ui->keyText->toPlainText().isEmpty()) {
+        return;
+    }
     pParams.push_back(Params(ui->oldAddrText->toPlainText(), ui->newAddrText->toPlainText(), ui->keyText->toPlainText()));
-    ui->oldAddrText->setPlainText("");
-    ui->newAddrText->setPlainText("");
-    ui->keyText->setPlainText("");
-    refreshList();
+    this->clearTextFields(false);
+    this->refreshList();
 }
 
 void MainWindow::refreshList()
@@ -81,11 +85,8 @@ void MainWindow::on_editBut_clicked()
     pParams[id].newAddr = ui->editNewAddr->toPlainText();
     pParams[id].key = ui->editKey->toPlainText();
 
-    ui->editOldAddr->setPlainText("");
-    ui->editNewAddr->setPlainText("");
-    ui->editKey->setPlainText("");
-
-    refreshList();
+    this->clearTextFields(true);
+    this->refreshList();
 }
 
 void MainWindow::on_listWidget_itemClicked(QListWidgetItem *item)
@@ -94,4 +95,28 @@ void MainWindow::on_listWidget_itemClicked(QListWidgetItem *item)
     ui->editOldAddr->setPlainText(pParams[id].oldAddr);
     ui->editNewAddr->setPlainText(pParams[id].newAddr);
     ui->editKey->setPlainText(pParams[id].key);
+}
+
+void MainWindow::on_delBut_clicked()
+{
+    QList<QListWidgetItem*> items=ui->listWidget->selectedItems();
+    if(items.size()!=1){
+        return;
+    }
+    int id=ui->listWidget->row(items[0]);
+    pParams.erase(pParams.begin()+id);
+    this->clearTextFields(true);
+    this->refreshList();
+}
+
+void MainWindow::clearTextFields(bool isEditable) {
+    if (isEditable) {
+        ui->editOldAddr->setPlainText("");
+        ui->editNewAddr->setPlainText("");
+        ui->editKey->setPlainText("");
+    }else{
+        ui->oldAddrText->setPlainText("");
+        ui->newAddrText->setPlainText("");
+        ui->keyText->setPlainText("");
+    }
 }

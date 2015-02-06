@@ -31,17 +31,16 @@ public:
 
 private slots:
     void on_convertBut_clicked();
-
     void on_addParams_clicked();
-
     void on_editBut_clicked();
-
     void on_listWidget_itemClicked(QListWidgetItem *item);
+    void on_delBut_clicked();
 
 private:
     Ui::MainWindow *ui;
     std::vector<Params> pParams;
     void refreshList();
+    void clearTextFields(bool isEditable) ;
 };
 
 #endif // MAINWINDOW_H
