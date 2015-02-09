@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QMessageBox>
 #include <QDebug>
+#include <qstringmatcher.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -32,7 +33,13 @@ void MainWindow::on_convertBut_clicked()
 
         pTxt = pTxt.replace("Location", "RelativeLocation");
         pTxt = pTxt.replace("Rotation", "RelativeRotation");
-        pTxt = pTxt.replace("\n         End Object", "");
+        pTxt = pTxt.replace("Tag", "Tags(0)");
+        pTxt = pTxt.replace("Layer", "Tags(1)");
+        pTxt = pTxt.replace(QRegExp("\\s*ObjectArchetype[^\r\n]+[\r\n]*"), "");
+        pTxt = pTxt.replace(QRegExp("\\s*CollisionComponent[^\r\n]+[\r\n]*"), "\r\n");
+        pTxt = pTxt.replace(QRegExp("\\s*bNoEncroachCheck[^\r\n]+[\r\n]*"), "\r\n");
+        pTxt = pTxt.replace(QRegExp("\\s*CollisionType[^\r\n]+[\r\n]*"), "\r\n");
+        pTxt = pTxt.replace(QRegExp("(\\s{2,})Name\\s*=\\s*([^\r\n]+)"), "\\1ActorLabel=\\2");
 
         QStringList actors = pTxt.split("Begin Actor");
         QString resultStr = "Begin Map\r\n   Begin Level";
@@ -40,14 +47,52 @@ void MainWindow::on_convertBut_clicked()
         for (int i = 1; i<actors.count(); i++) {
             QString str = actors[i].trimmed();
             QString type = str.mid(6, str.indexOf(" ")-6);
-//            qDebug() << type;
             if (type == "StaticMeshActor") {
-                str = str.replace(QRegExp("Name=\\S+(\\s)"), QString("Name=%1_SMActor_%2\\1").arg(ui->namePrefixText->toPlainText()).arg(uNumb));
-                str = str.replace("Engine.Default__StaticMeshActor:StaticMeshComponent0", "/Script/Engine.Default__StaticMeshActor:StaticMeshComponent0");
-                str = str.replace("Engine.Default__StaticMeshActor", "/Script/Engine.Default__StaticMeshActor");
                 str = str.replace("Name=StaticMeshComponent0", "Name=\"StaticMeshComponent0\"");
+                str = str.replace(QRegExp("Name=[^\"\\s]+(\\s)"), QString("Name=%1_SMActor_%2\\1").arg(ui->namePrefixText->toPlainText()).arg(uNumb));
+                str = str.replace("Engine.Default__StaticMeshActor:StaticMeshComponent0", "/Script/Engine.Default__StaticMeshActor:StaticMeshComponent0");
                 str = str.replace(QRegExp("\\sObjName=\\S+"), "");
+                str = str.replace(QRegExp("\\s*VertexPositionVersionNumber.+End Object(.+)([\r\n]+\\s+RelativeLocation.+DrawScale[^\r\n]+[\r\n]*)"), "\\2         End Object\\1\r\n");
                 str = str.replace(QRegExp("(Begin Object.+ Archetype=\\S+\\s)"), "\\1         End Object\r\n         Begin Object Name=\"StaticMeshComponent0\"\r\n");
+                str = str.replace(QRegExp("\\s*StaticMeshComponent=StaticMeshComponent[^\r\n]+[\r\n]*"), "\r\n         StaticMeshComponent=StaticMeshComponent0");
+                str = str.replace(QRegExp("\\s*Components[^\r\n]+[\r\n]*"), "\r\n         RootComponent=StaticMeshComponent0\r\n");
+
+                float fDrawScale = 1.0;
+                float d3Scale [3]={1,1,1};
+                if  (str.contains("DrawScale=")) {
+                     QRegExp matcher("DrawScale=([^\r\n]+)");
+                     int i =matcher.indexIn(str);
+                     if (i) {
+                         QStringList list = matcher.capturedTexts();
+                         QStringList::iterator it = list.begin();
+                         for ( ++it ;it!=list.end(); it++) {
+                            fDrawScale = it->toFloat();
+                         }
+                     }
+                }
+
+                if  (str.contains("DrawScale3D=")) {
+                     QRegExp matcher("DrawScale3D=\\(X=([+-\\d.]+),Y=([+-\\d.]+),Z=([+-\\d.]+)\\)");
+                     int i =matcher.indexIn(str);
+                     if (i) {
+                         QStringList list = matcher.capturedTexts();
+                         QStringList::iterator it = list.begin();
+                         int q = 0;
+                         for ( ++it ;it!=list.end(); it++) {
+                             d3Scale [q++] = it->toFloat();
+                         }
+                     }
+                }
+
+                for (int i = 0; i<3; i++) {
+                    d3Scale[i] *= fDrawScale;
+                }
+
+                QString scalePattern = "(X=%1,Y=%2,Z=%3)";
+                scalePattern = scalePattern.arg(d3Scale[0]).arg(d3Scale[1]).arg(d3Scale[2]);
+
+                str = str.replace(QRegExp("\\s*DrawScale=[^\r\n]+[\r\n]*"), "\r\n         BodyInstance=(Scale3D="+scalePattern+",CollisionProfileName=\"Custom\",CollisionResponses=(ResponseArray=((Channel=\"Pawn\",Response=ECR_Ignore),(Channel=\"PhysicsBody\",Response=ECR_Ignore))))\r\n");
+                str = str.replace(QRegExp("\\s*DrawScale3D=[^\r\n]+[\r\n]*"), "\r\n         RelativeScale3D="+scalePattern+"\r\n");
 
                 resultStr += "\r\n      Begin Actor "+str+"\r\n      End Actor";
             }

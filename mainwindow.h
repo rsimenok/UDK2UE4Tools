@@ -41,6 +41,7 @@ private:
     std::vector<Params> pParams;
     void refreshList();
     void clearTextFields(bool isEditable) ;
+    QString getDataBetween(QString begin,QString end, QString &source);
 };
 
 #endif // MAINWINDOW_H
