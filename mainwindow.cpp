@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QMessageBox>
-#include <QDebug>
-#include <qstringmatcher.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -52,7 +50,7 @@ void MainWindow::on_convertBut_clicked()
                 str = str.replace(QRegExp("Name=[^\"\\s]+(\\s)"), QString("Name=%1_SMActor_%2\\1").arg(ui->namePrefixText->toPlainText()).arg(uNumb));
                 str = str.replace("Engine.Default__StaticMeshActor:StaticMeshComponent0", "/Script/Engine.Default__StaticMeshActor:StaticMeshComponent0");
                 str = str.replace(QRegExp("\\sObjName=\\S+"), "");
-                str = str.replace(QRegExp("\\s*VertexPositionVersionNumber.+End Object(.+)([\r\n]+\\s+RelativeLocation.+DrawScale[^\r\n]+[\r\n]*)"), "\\2         End Object\\1\r\n");
+                str = str.replace(QRegExp("\\s*(DerivedDataKey[^\r\n]+).+End Object(.+)([\r\n]+\\s+RelativeLocation.+DrawScale[^\r\n]+[\r\n]*)"), "\\1\\3         End Object\\2\r\n");
                 str = str.replace(QRegExp("(Begin Object.+ Archetype=\\S+\\s)"), "\\1         End Object\r\n         Begin Object Name=\"StaticMeshComponent0\"\r\n");
                 str = str.replace(QRegExp("\\s*StaticMeshComponent=StaticMeshComponent[^\r\n]+[\r\n]*"), "\r\n         StaticMeshComponent=StaticMeshComponent0");
                 str = str.replace(QRegExp("\\s*Components[^\r\n]+[\r\n]*"), "\r\n         RootComponent=StaticMeshComponent0\r\n");

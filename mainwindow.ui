@@ -49,7 +49,7 @@
              </size>
             </property>
             <property name="plainText">
-             <string>StaticMesh'CE_ThreeGarbage.Geometry.KlubokMusora001'</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -75,7 +75,7 @@
              </size>
             </property>
             <property name="plainText">
-             <string>StaticMesh'/Game/EP_02/Geometry/Garbage/EP_02_Garbage_08.EP_02_Garbage_08'</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -101,7 +101,7 @@
              </size>
             </property>
             <property name="plainText">
-             <string>StaticMeshDerivedDataKey=&quot;STATICMESH_46A8778361B442A9523C54440EA1E9D_0db5412b27ab480f844cc7f0be5abaff_57B612844716D6E7EF4225B8D45F706100000000010000000100000000000000010000004000000000000000010000000000803F0000803F0000803F0000803F000000000000803F00000000000000000000344203030300000000&quot;</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -287,44 +287,7 @@
            <item row="0" column="0">
             <widget class="QPlainTextEdit" name="pasteText">
              <property name="plainText">
-              <string>Begin Map
-   Begin Level
-      Begin Actor Class=StaticMeshActor Name=StaticMeshActor_133 Archetype=StaticMeshActor'Engine.Default__StaticMeshActor'
-         Begin Object Class=StaticMeshComponent Name=StaticMeshComponent0 ObjName=StaticMeshComponent_44 Archetype=StaticMeshComponent'Engine.Default__StaticMeshActor:StaticMeshComponent0'
-            StaticMesh=StaticMesh'CE_ThreeGarbage.Geometry.KlubokMusora001'
-            VertexPositionVersionNumber=1
-            ReplacementPrimitive=None
-            PreviewEnvironmentShadowing=0
-            bAllowApproximateOcclusion=True
-            bForceDirectLightMap=True
-            bCastDynamicShadow=False
-            bUsePrecomputedShadows=True
-            BlockNonZeroExtent=False
-            VisibilityId=6
-            LightingChannels=(bInitialized=True,Static=True,Dynamic=True)
-            RBCollideWithChannels=(Pawn=True)
-            Name=&quot;StaticMeshComponent_44&quot;
-            ObjectArchetype=StaticMeshComponent'Engine.Default__StaticMeshActor:StaticMeshComponent0'
-            CustomProperties 
-         End Object
-         StaticMeshComponent=StaticMeshComponent'StaticMeshComponent_44'
-         Components(0)=StaticMeshComponent'StaticMeshComponent_44'
-         Location=(X=-56480.000000,Y=-4735.998047,Z=-8495.999023)
-         Rotation=(Pitch=0,Yaw=0,Roll=-7168)
-         DrawScale=0.250000
-         DrawScale3D=(X=2.000000,Y=2.000000,Z=2.000000)
-         CollisionType=COLLIDE_BlockWeapons
-         bNoEncroachCheck=True
-         Tag=&quot;StaticMeshActor&quot;
-         Layer=&quot;TrashEgg&quot;
-         CollisionComponent=StaticMeshComponent'StaticMeshComponent_44'
-         Name=&quot;StaticMeshActor_133&quot;
-         ObjectArchetype=StaticMeshActor'Engine.Default__StaticMeshActor'
-      End Actor
-   End Level
-Begin Surface
-End Surface
-End Map</string>
+              <string/>
              </property>
             </widget>
            </item>
