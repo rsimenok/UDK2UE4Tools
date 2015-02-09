@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     pParams()
 {
     ui->setupUi(this);
+    pParams.push_back(Params("FracturedStaticMesh'ce_two_asteroids.Geometry.aster_fr'", "StaticMesh'/Game/EP_03/Geometry/Asteroid/EP_03_asteroid_01.EP_03_asteroid_01'", "StaticMeshDerivedDataKey=\"STATICMESH_46A8778361B442A9523C54440EA1E9D_0db5412b27ab480f844cc7f0be5abaff_E761B3D7462866F64840EC9FFBB6EBA100000000010000000100000000000000010000004000000000000000010000000000803F0000803F0000803F0000803F000000000000803F00000000000000000000344203030300000000\""));
 }
 
 MainWindow::~MainWindow()
@@ -33,7 +34,7 @@ void MainWindow::on_convertBut_clicked()
         pTxt = pTxt.replace("Rotation", "RelativeRotation");
         pTxt = pTxt.replace("Tag", "Tags(0)");
         pTxt = pTxt.replace("Layer", "Tags(1)");
-        pTxt = pTxt.replace(QRegExp("\\s*ObjectArchetype[^\r\n]+[\r\n]*"), "");
+        pTxt = pTxt.replace(QRegExp("\\s*ObjectArchetype[^\r\n]+[\r\n]*"), "\r\n");
         pTxt = pTxt.replace(QRegExp("\\s*CollisionComponent[^\r\n]+[\r\n]*"), "\r\n");
         pTxt = pTxt.replace(QRegExp("\\s*bNoEncroachCheck[^\r\n]+[\r\n]*"), "\r\n");
         pTxt = pTxt.replace(QRegExp("\\s*CollisionType[^\r\n]+[\r\n]*"), "\r\n");
@@ -67,6 +68,7 @@ void MainWindow::on_convertBut_clicked()
                             fDrawScale = it->toFloat();
                          }
                      }
+                     str = str.replace(QRegExp("\\s*DrawScale=[^\r\n]+[\r\n]*"), "");
                 }
 
                 if  (str.contains("DrawScale3D=")) {
@@ -80,6 +82,7 @@ void MainWindow::on_convertBut_clicked()
                              d3Scale [q++] = it->toFloat();
                          }
                      }
+                     str = str.replace(QRegExp("\\s*DrawScale3D=[^\r\n]+[\r\n]*"), "");
                 }
 
                 for (int i = 0; i<3; i++) {
@@ -89,9 +92,9 @@ void MainWindow::on_convertBut_clicked()
                 QString scalePattern = "(X=%1,Y=%2,Z=%3)";
                 scalePattern = scalePattern.arg(d3Scale[0]).arg(d3Scale[1]).arg(d3Scale[2]);
 
-                str = str.replace(QRegExp("\\s*DrawScale=[^\r\n]+[\r\n]*"), "\r\n         BodyInstance=(Scale3D="+scalePattern+",CollisionProfileName=\"Custom\",CollisionResponses=(ResponseArray=((Channel=\"Pawn\",Response=ECR_Ignore),(Channel=\"PhysicsBody\",Response=ECR_Ignore))))\r\n");
-                str = str.replace(QRegExp("\\s*DrawScale3D=[^\r\n]+[\r\n]*"), "\r\n         RelativeScale3D="+scalePattern+"\r\n");
-
+                str = str.replace(QRegExp("(\\s*DerivedDataKey=[^\r\n]+[\r\n]*)"), "\\1         BodyInstance=(Scale3D="+scalePattern+",CollisionProfileName=\"Custom\",CollisionResponses=(ResponseArray=((Channel=\"Pawn\",Response=ECR_Ignore),(Channel=\"PhysicsBody\",Response=ECR_Ignore))))\r\n         RelativeScale3D="+scalePattern+"\r\n");
+                str = str.replace("         End Object", "\r\n         End Object");
+                str = str.replace("\r\n\r\n", "\r\n");
                 resultStr += "\r\n      Begin Actor "+str+"\r\n      End Actor";
             }
         }
