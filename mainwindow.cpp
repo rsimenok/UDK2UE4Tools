@@ -1,18 +1,56 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QMessageBox>
+#include <QFile>
+#include <QTextStream>
+
+#define FileToSave qApp->applicationDirPath()+"/saved.txt"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     pParams()
 {
+    // Ініціалізація UI
     ui->setupUi(this);
-    pParams.push_back(Params("FracturedStaticMesh'ce_two_asteroids.Geometry.aster_fr'", "StaticMesh'/Game/EP_03/Geometry/Asteroid/EP_03_asteroid_01.EP_03_asteroid_01'", "StaticMeshDerivedDataKey=\"STATICMESH_46A8778361B442A9523C54440EA1E9D_0db5412b27ab480f844cc7f0be5abaff_E761B3D7462866F64840EC9FFBB6EBA100000000010000000100000000000000010000004000000000000000010000000000803F0000803F0000803F0000803F000000000000803F00000000000000000000344203030300000000\""));
+    try{// Пробуємо зчитати збережені параметри
+        // Відкриваємо файл для читання
+        QFile loadfile(FileToSave);
+        loadfile.open(QIODevice::ReadOnly|QIODevice::Text);
+        QTextStream in(&loadfile);
+        // Зчитуємо все ...
+        QString line = in.readAll();
+        QStringList loadlist = line.split(QRegExp("\n"), QString::SkipEmptyParts);
+        // ... розбираємо поелементно
+        for(QString one : loadlist){
+            Params Param(one);
+            if(Param.valid())
+                // Додаємо в список
+                pParams.push_back(Param);
+        }
+        loadfile.close();
+    }catch(...){ }
+    // Add test params
+    //pParams.push_back(Params("FracturedStaticMesh'ce_two_asteroids.Geometry.aster_fr'", "StaticMesh'/Game/EP_03/Geometry/Asteroid/EP_03_asteroid_01.EP_03_asteroid_01'", "StaticMeshDerivedDataKey=\"STATICMESH_46A8778361B442A9523C54440EA1E9D_0db5412b27ab480f844cc7f0be5abaff_E761B3D7462866F64840EC9FFBB6EBA100000000010000000100000000000000010000004000000000000000010000000000803F0000803F0000803F0000803F000000000000803F00000000000000000000344203030300000000\""));
+
+    this->refreshList();
 }
 
 MainWindow::~MainWindow()
 {
+    try{// Пробуємо зберегти параметри
+        // Відкриваємо файл для запису і очищаємо його
+        QFile loadfile(FileToSave);
+        loadfile.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text);
+        QTextStream out(&loadfile);
+        // Записуємо по елементно
+        for(Params Param : pParams){
+            out << Param.ToString();
+        }
+        // закриваємо файл
+        loadfile.close();
+    }catch(...){ }
+
     delete ui;
 }
 

@@ -14,10 +14,49 @@ struct Params {
     QString newAddr;
     QString key;
 
-    Params(QString a, QString b, QString c){
-        oldAddr = a;
-        newAddr = b;
-        key = c;
+    // Пустий конструктор
+    Params():
+        oldAddr(""),
+        newAddr(""),
+        key("")
+    {
+
+    }
+
+    // Конструктор із значень
+    Params(QString a, QString b, QString c):
+        oldAddr(a),
+        newAddr(b),
+        key(c)
+    {
+        oldAddr = oldAddr.trimmed();
+        newAddr = newAddr.trimmed();
+        key     = key.trimmed();
+    }
+
+    // Конструктор із одного рядка типу як при виведенні через ToString
+    Params(QString& FromSave):
+        oldAddr(""),
+        newAddr(""),
+        key("")
+    {
+        QStringList list = FromSave.split("\t");
+        if(list.count() > 2){
+            oldAddr = list[0];
+            newAddr = list[1];
+            key     = list[2];
+            oldAddr = oldAddr.trimmed();
+            newAddr = newAddr.trimmed();
+            key     = key.trimmed();
+        }
+    }
+
+    bool valid(){
+        return oldAddr!="" && newAddr!="" && key!="";
+    }
+
+    QString ToString(){
+        return QString("%1\t%2\t%3\n").arg(oldAddr).arg(newAddr).arg(key);
     }
 };
 
