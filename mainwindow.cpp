@@ -82,7 +82,7 @@ void MainWindow::on_convertBut_clicked()
         QString resultStr = "Begin Map\r\n   Begin Level";
         int uNumb = 1;
         for (int i = 1; i<actors.count(); i++) {
-            QString str = actors[i].trimmed();
+            QString str = actors[i].replace("\r\n", "\n").replace("\r", "\n").replace("\n\n", "\n").replace("\n", "\r\n").trimmed();
             QString type = str.mid(6, str.indexOf(" ")-6);
             if (type == "StaticMeshActor") {
                 str = str.replace("Name=StaticMeshComponent0", "Name=\"StaticMeshComponent0\"");
@@ -93,6 +93,22 @@ void MainWindow::on_convertBut_clicked()
                 str = str.replace(QRegExp("(Begin Object.+ Archetype=\\S+\\s)"), "\\1         End Object\r\n         Begin Object Name=\"StaticMeshComponent0\"\r\n");
                 str = str.replace(QRegExp("\\s*StaticMeshComponent=StaticMeshComponent[^\r\n]+[\r\n]*"), "\r\n         StaticMeshComponent=StaticMeshComponent0");
                 str = str.replace(QRegExp("\\s*Components[^\r\n]+[\r\n]*"), "\r\n         RootComponent=StaticMeshComponent0\r\n");
+
+                // Переводимо поворот в градуси
+                if  (str.contains("RelativeRotation=")) {
+                     QRegExp matcher("RelativeRotation=\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)");
+                     int i = matcher.indexIn(str);
+                     float Rotation[3];
+                     if (i) {
+                         QStringList list = matcher.capturedTexts();
+                         QStringList::iterator it = list.begin();
+                         int q = 0;
+                         for ( ++it ;it!=list.end(); it++) {
+                             Rotation [q++] = it->toFloat() * 0.00549316540360483;
+                         }
+                     }
+                     str = str.replace(QRegExp("RelativeRotation=\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)"), QString("RelativeRotation=(Pith=%1,Yaw=%2,Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
+                }
 
                 float fDrawScale = 1.0;
                 float d3Scale [3]={1,1,1};
@@ -131,8 +147,10 @@ void MainWindow::on_convertBut_clicked()
                 scalePattern = scalePattern.arg(d3Scale[0]).arg(d3Scale[1]).arg(d3Scale[2]);
 
                 str = str.replace(QRegExp("(\\s*DerivedDataKey=[^\r\n]+[\r\n]*)"), "\\1         BodyInstance=(Scale3D="+scalePattern+",CollisionProfileName=\"Custom\",CollisionResponses=(ResponseArray=((Channel=\"Pawn\",Response=ECR_Ignore),(Channel=\"PhysicsBody\",Response=ECR_Ignore))))\r\n         RelativeScale3D="+scalePattern+"\r\n");
+                str = str.replace("         Relative", "              Relative");
                 str = str.replace("         End Object", "\r\n         End Object");
-                str = str.replace("\r\n\r\n", "\r\n");
+                // o_O
+                str = str.replace("\r\n\r\n", "\r\n").replace("\n\n", "\n").replace("\r\r", "r").replace("\r\n\r\n", "\r\n");
                 resultStr += "\r\n      Begin Actor "+str+"\r\n      End Actor";
             }
         }
