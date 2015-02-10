@@ -3,6 +3,9 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
+#include <qdebug.h>
+#include <QClipboard>
+#include <qsettings.h>
 
 #define FileToSave qApp->applicationDirPath()+"/saved.txt"
 
@@ -30,10 +33,13 @@ MainWindow::MainWindow(QWidget *parent) :
         }
         loadfile.close();
     }catch(...){ }
-    // Add test params
-    //pParams.push_back(Params("FracturedStaticMesh'ce_two_asteroids.Geometry.aster_fr'", "StaticMesh'/Game/EP_03/Geometry/Asteroid/EP_03_asteroid_01.EP_03_asteroid_01'", "StaticMeshDerivedDataKey=\"STATICMESH_46A8778361B442A9523C54440EA1E9D_0db5412b27ab480f844cc7f0be5abaff_E761B3D7462866F64840EC9FFBB6EBA100000000010000000100000000000000010000004000000000000000010000000000803F0000803F0000803F0000803F000000000000803F00000000000000000000344203030300000000\""));
 
     this->refreshList();
+    QSettings settings;
+    ui->stayInTop->setChecked(settings.value("stayInTop").toBool());
+    if  (ui->stayInTop->isChecked()) {
+         this->setWindowFlags(Qt::WindowStaysOnTopHint);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -150,7 +156,7 @@ void MainWindow::on_convertBut_clicked()
                 str = str.replace("         Relative", "              Relative");
                 str = str.replace("         End Object", "\r\n         End Object");
                 // o_O
-                str = str.replace("\r\n\r\n", "\r\n").replace("\n\n", "\n").replace("\r\r", "r").replace("\r\n\r\n", "\r\n");
+                str = str.replace("\r\n\r\n", "\r\n").replace("\n\n", "\n").replace("\r\r", "\r").replace("\r\n\r\n", "\r\n");
                 resultStr += "\r\n      Begin Actor "+str+"\r\n      End Actor";
             }
         }
@@ -220,5 +226,40 @@ void MainWindow::clearTextFields(bool isEditable) {
         ui->oldAddrText->setPlainText("");
         ui->newAddrText->setPlainText("");
         ui->keyText->setPlainText("");
+    }
+}
+void MainWindow::on_rotatitonBut_clicked() {
+    if  (ui->oldRotationText->toPlainText().contains("Object.Movement.Rotation ")) {
+        // почему-то матчер не работет пришлось по говняцки написать
+//          QRegExp matcher("Object.Movement.Rotation \\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)");
+//          int i = matcher.indexIn(ui->oldRotationText->toPlainText());
+//          float Rotation[3];
+//          if (i) {
+//              QStringList list = matcher.capturedTexts();
+//              QStringList::iterator it = list.begin();
+//              int q = 0;
+//              for ( ++it ;it!=list.end(); it++) {
+//                  Rotation [q++] = it->toFloat() * 0.00549316540360483;
+//                  qDebug() << Rotation;
+//              }
+//          }
+        QString data = ui->oldRotationText->toPlainText();
+        float pitch = (data.mid(data.indexOf("Pitch=")+6, data.indexOf(",")-data.indexOf("Pitch=")-6)).toFloat()*0.00549316540360483;
+        float yaw =  (data.mid(data.indexOf("Yaw=")+4, data.indexOf("Roll=")-data.indexOf("Yaw=")-5)).toFloat()*0.00549316540360483;;
+        float roll =  (data.mid(data.indexOf("Roll=")+5, data.indexOf(")")-data.indexOf("Roll=")-5)).toFloat()*0.00549316540360483;
+        QString tmpStr  = ui->oldRotationText->toPlainText().replace(QRegExp("Object.Movement.Rotation \\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)"), QString("(Pitch=%1,Yaw=%2,Roll=%3)").arg(pitch).arg(yaw).arg(roll));
+        ui->newRotationText->setPlainText(tmpStr);
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(tmpStr);
+    }
+}
+
+void MainWindow::on_stayInTop_clicked()
+{
+    QSettings settings;
+    if (ui->stayInTop->isChecked()) {
+        settings.setValue("stayInTop", ui->stayInTop->isChecked());
+    }else{
+        settings.setValue("stayInTop", ui->stayInTop->isChecked());
     }
 }

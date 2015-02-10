@@ -74,6 +74,9 @@ private slots:
     void on_editBut_clicked();
     void on_listWidget_itemClicked(QListWidgetItem *item);
     void on_delBut_clicked();
+    void on_rotatitonBut_clicked();
+
+    void on_stayInTop_clicked();
 
 private:
     Ui::MainWindow *ui;
