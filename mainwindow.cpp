@@ -245,9 +245,10 @@ void MainWindow::on_rotatitonBut_clicked() {
 //          }
         QString data = ui->oldRotationText->toPlainText();
         float pitch = (data.mid(data.indexOf("Pitch=")+6, data.indexOf(",")-data.indexOf("Pitch=")-6)).toFloat()*0.00549316540360483;
-        float yaw =  (data.mid(data.indexOf("Yaw=")+4, data.indexOf("Roll=")-data.indexOf("Yaw=")-5)).toFloat()*0.00549316540360483;;
+        float yaw =  (data.mid(data.indexOf("Yaw=")+4, data.indexOf("Roll=")-data.indexOf("Yaw=")-5)).toFloat()*0.00549316540360483;
         float roll =  (data.mid(data.indexOf("Roll=")+5, data.indexOf(")")-data.indexOf("Roll=")-5)).toFloat()*0.00549316540360483;
         QString tmpStr  = ui->oldRotationText->toPlainText().replace(QRegExp("Object.Movement.Rotation \\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)"), QString("(Pitch=%1,Yaw=%2,Roll=%3)").arg(pitch).arg(yaw).arg(roll));
+//        QString tmpStr  = ui->oldRotationText->toPlainText().replace(QRegExp("Object.Movement.Rotation \\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)"), QString("(Pitch=%1,Yaw=%2,Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
         ui->newRotationText->setPlainText(tmpStr);
         QClipboard *clipboard = QApplication::clipboard();
         clipboard->setText(tmpStr);
