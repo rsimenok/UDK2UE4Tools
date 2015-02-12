@@ -69,7 +69,6 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_convertBut_clicked();
     void on_addParams_clicked();
     void on_editBut_clicked();
     void on_listWidget_itemClicked(QListWidgetItem *item);
@@ -77,6 +76,10 @@ private slots:
     void on_rotatitonBut_clicked();
 
     void on_stayInTop_clicked();
+
+    void on_UScriptSource_textChanged();
+
+    void on_pasteText_textChanged();
 
 private:
     Ui::MainWindow *ui;
