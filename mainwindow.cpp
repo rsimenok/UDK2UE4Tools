@@ -105,7 +105,7 @@ void MainWindow::on_convertBut_clicked()
                      QRegExp matcher("RelativeRotation=\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)");
                      int i = matcher.indexIn(str);
                      float Rotation[3];
-                     if (i) {
+                     if (i!=-1) {
                          QStringList list = matcher.capturedTexts();
                          QStringList::iterator it = list.begin();
                          int q = 0;
@@ -231,36 +231,42 @@ void MainWindow::clearTextFields(bool isEditable) {
 void MainWindow::on_rotatitonBut_clicked() {
     if  (ui->oldRotationText->toPlainText().contains("Object.Movement.Rotation ")) {
         // почему-то матчер не работет пришлось по говняцки написать
-//          QRegExp matcher("Object.Movement.Rotation \\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)");
-//          int i = matcher.indexIn(ui->oldRotationText->toPlainText());
-//          float Rotation[3];
-//          if (i) {
-//              QStringList list = matcher.capturedTexts();
-//              QStringList::iterator it = list.begin();
-//              int q = 0;
-//              for ( ++it ;it!=list.end(); it++) {
-//                  Rotation [q++] = it->toFloat() * 0.00549316540360483;
-//                  qDebug() << Rotation;
-//              }
-//          }
-        QString data = ui->oldRotationText->toPlainText();
-        float pitch = (data.mid(data.indexOf("Pitch=")+6, data.indexOf(",")-data.indexOf("Pitch=")-6)).toFloat()*0.00549316540360483;
-        float yaw =  (data.mid(data.indexOf("Yaw=")+4, data.indexOf("Roll=")-data.indexOf("Yaw=")-5)).toFloat()*0.00549316540360483;
-        float roll =  (data.mid(data.indexOf("Roll=")+5, data.indexOf(")")-data.indexOf("Roll=")-5)).toFloat()*0.00549316540360483;
-        QString tmpStr  = ui->oldRotationText->toPlainText().replace(QRegExp("Object.Movement.Rotation \\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)"), QString("(Pitch=%1,Yaw=%2,Roll=%3)").arg(pitch).arg(yaw).arg(roll));
-//        QString tmpStr  = ui->oldRotationText->toPlainText().replace(QRegExp("Object.Movement.Rotation \\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)"), QString("(Pitch=%1,Yaw=%2,Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
-        ui->newRotationText->setPlainText(tmpStr);
+          QRegExp matcher("\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)");
+          QString Str(ui->oldRotationText->toPlainText());
+          QString Cleared("");
+          qDebug() << Str;
+          for(int i = matcher.indexIn(Str);i!=-1;i = matcher.indexIn(Str, i+5)){
+              float Rotation[3];
+              QStringList list = matcher.capturedTexts();
+              QStringList::iterator it = list.begin();
+              int q = 0;
+              for ( ++it ;it!=list.end(); it++) {
+                  Rotation [q++] = it->toFloat() * 0.00549316540360483;
+                  qDebug() << Rotation[q];
+              }
+//              Str = Str.replace(i, list[0].count(), QString("(Pitch=%1,Yaw=%2,Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
+              Cleared = Cleared + QString("(Pitch=%1,Yaw=%2,Roll=%3)\n").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]);
+          }
+//        if(ui->bHelperClearAll->isChecked())
+            ui->newRotationText->setPlainText(Cleared);
+//            else
+//            ui->newRotationText->setPlainText(Str);
         QClipboard *clipboard = QApplication::clipboard();
-        clipboard->setText(tmpStr);
+        clipboard->setText(Str);
     }
 }
 
 void MainWindow::on_stayInTop_clicked()
 {
     QSettings settings;
+    Qt::WindowFlags flags = windowFlags();
     if (ui->stayInTop->isChecked()) {
-        settings.setValue("stayInTop", ui->stayInTop->isChecked());
+        settings.setValue("stayInTop", true);
+         flags |= Qt:: WindowStaysOnTopHint;
     }else{
-        settings.setValue("stayInTop", ui->stayInTop->isChecked());
+        settings.setValue("stayInTop", false);
+        flags  &= ~Qt:: WindowStaysOnTopHint;
     }
+    setWindowFlags(flags);
+    show();
 }
