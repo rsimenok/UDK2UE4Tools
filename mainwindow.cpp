@@ -51,11 +51,6 @@ MainWindow::MainWindow(QWidget *parent) :
     }catch(...){ }
 
     this->refreshList();
-    QSettings settings;
-    ui->stayInTop->setChecked(settings.value("stayInTop").toBool());
-    if  (ui->stayInTop->isChecked()) {
-         this->setWindowFlags(Qt::WindowStaysOnTopHint);
-    }
 }
 
 MainWindow::~MainWindow()
@@ -170,13 +165,10 @@ void MainWindow::on_rotatitonBut_clicked() {
 
 void MainWindow::on_stayInTop_clicked()
 {
-    QSettings settings;
     Qt::WindowFlags flags = windowFlags();
     if (ui->stayInTop->isChecked()) {
-        settings.setValue("stayInTop", true);
          flags |= Qt:: WindowStaysOnTopHint;
     }else{
-        settings.setValue("stayInTop", false);
         flags  &= ~Qt:: WindowStaysOnTopHint;
     }
     setWindowFlags(flags);
@@ -194,6 +186,20 @@ void MainWindow::on_UScriptSource_textChanged()
     To << "\\1UPROPERTY(Category = \"\\2\", Meta = (\\4))\\1\\3;";
     Regs << QRegExp("(\\s*)var\\([^)]*\\) ([^<;]+)<([^>]+)>;");
     To << "\\1UPROPERTY(Meta = (\\3))\\1\\2;";
+    Regs << QRegExp("(\\s*)var\((\\w+)\\) ([^<;]+)<(([^=;>]+=[^=;>]+)+)>;");
+    To << "\\1UPROPERTY(Category = \"\\2\", Meta = (\\4))\\1\\3;";
+    Regs << QRegExp("(\\s*)var\\((\\w+)\\) ([^;]+);");
+    To << "\\1UPROPERTY(Category = \"\\2\")\\1\\3;";
+    Regs << QRegExp("(\\s*)var\\(\\) ([^;]+);");
+    To << "\\1UPROPERTY()\\1\\2;";
+    Regs << QRegExp("(\\s*)var transient ([^;]+);");
+    To << "\\1\\2; // #OldNotice: Transient";
+    Regs << QRegExp("(\\s*)var ([^;]+);");
+    To << "\\1\\2;";
+    Regs << QRegExp("(\\s*)UPROPERTY\\(([^\r\n]*)\\)(\\s*)transient ([^;]+);");
+    To << "\\1UPROPERTY(Transient, \\2)\\3\\4;";
+    Regs << QRegExp("UPROPERTY\\(Transient, \\)");
+    To << "UPROPERTY(Transient)";
 
     ui->UCppSource->setPlainText(QReplace(Source, Regs, To));
 }
