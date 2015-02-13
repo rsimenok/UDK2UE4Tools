@@ -617,3 +617,11 @@ void MainWindow::on_ConvSettLocatZ_editingFinished()
     if(!TimeLockChangeEvent && setValWithRelative(ui->ConvSettLocatZ, 2, ConvSettCurrLocation, ui->ConvSettLocatLock->isChecked()))
         refreshConvLocEditLine();
 }
+
+void MainWindow::on_toolButton_5_clicked()
+{
+    ConvSettCurrScale[0] = 1.f / ConvSettCurrScale[0];
+    ConvSettCurrScale[1] = 1.f / ConvSettCurrScale[1];
+    ConvSettCurrScale[2] = 1.f / ConvSettCurrScale[2];
+    refreshConvScaleEditLine();
+}

@@ -112,6 +112,8 @@ private slots:
 
     void on_ConvSettLocatZ_editingFinished();
 
+    void on_toolButton_5_clicked();
+
 private:
     Ui::MainWindow *ui;
     std::vector<Params> pParams;

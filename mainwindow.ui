@@ -198,25 +198,6 @@
              <string>Зміщення та масштабування</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_5">
-             <item row="0" column="0">
-              <widget class="QLineEdit" name="ConvSettScaleX">
-               <property name="toolTip">
-                <string>Scale X</string>
-               </property>
-               <property name="statusTip">
-                <string>Scale X</string>
-               </property>
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>Scale X</string>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="1">
               <widget class="QLineEdit" name="ConvSettScaleY">
                <property name="toolTip">
@@ -227,19 +208,6 @@
                </property>
                <property name="placeholderText">
                 <string>Scale Y</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QLineEdit" name="ConvSettScaleZ">
-               <property name="toolTip">
-                <string>Scale Z</string>
-               </property>
-               <property name="statusTip">
-                <string>Scale Z</string>
-               </property>
-               <property name="placeholderText">
-                <string>Scale Z</string>
                </property>
               </widget>
              </item>
@@ -275,16 +243,38 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="ConvSettLocatY">
+             <item row="1" column="3">
+              <widget class="QToolButton" name="ConvSettLocatLock">
                <property name="toolTip">
-                <string>Location Y</string>
+                <string>Заблокувати відношення між елементами</string>
                </property>
                <property name="statusTip">
-                <string>Location Y</string>
+                <string>Заблокувати відношення між елементами</string>
+               </property>
+               <property name="text">
+                <string>L</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLineEdit" name="ConvSettScaleX">
+               <property name="toolTip">
+                <string>Scale X</string>
+               </property>
+               <property name="statusTip">
+                <string>Scale X</string>
+               </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="inputMask">
+                <string/>
                </property>
                <property name="placeholderText">
-                <string>Location Y</string>
+                <string>Scale X</string>
                </property>
               </widget>
              </item>
@@ -301,19 +291,42 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="3">
-              <widget class="QToolButton" name="ConvSettLocatLock">
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="ConvSettLocatY">
                <property name="toolTip">
-                <string>Заблокувати відношення між елементами</string>
+                <string>Location Y</string>
                </property>
                <property name="statusTip">
-                <string>Заблокувати відношення між елементами</string>
+                <string>Location Y</string>
+               </property>
+               <property name="placeholderText">
+                <string>Location Y</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLineEdit" name="ConvSettScaleZ">
+               <property name="toolTip">
+                <string>Scale Z</string>
+               </property>
+               <property name="statusTip">
+                <string>Scale Z</string>
+               </property>
+               <property name="placeholderText">
+                <string>Scale Z</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
+              <widget class="QToolButton" name="toolButton_5">
+               <property name="toolTip">
+                <string>Підносить до -1 степені вказані значення</string>
+               </property>
+               <property name="statusTip">
+                <string>Підносить до -1 степені вказані значення</string>
                </property>
                <property name="text">
-                <string>L</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
+                <string>D</string>
                </property>
               </widget>
              </item>
