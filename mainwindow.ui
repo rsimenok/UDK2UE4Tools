@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1008</width>
-    <height>667</height>
+    <width>763</width>
+    <height>424</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,12 +17,21 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="statusTip">
+       <string/>
+      </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Settings</string>
+        <string>Налаштування</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Налаштування</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -36,7 +45,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Old adress*:</string>
+             <string>Повна адреса на об'єкт в UDK:</string>
             </property>
            </widget>
           </item>
@@ -47,6 +56,12 @@
               <width>16777215</width>
               <height>40</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Повна адреса на об'єкт в UDK</string>
+            </property>
+            <property name="statusTip">
+             <string>Повна адреса на об'єкт в UDK</string>
             </property>
             <property name="plainText">
              <string/>
@@ -61,8 +76,14 @@
               <height>20</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
             <property name="text">
-             <string>New adress*:</string>
+             <string>Повна адреса на цей ж об'єкт в UE4:</string>
             </property>
            </widget>
           </item>
@@ -73,6 +94,12 @@
               <width>16777215</width>
               <height>40</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Повна адреса на цей ж об'єкт в UE4</string>
+            </property>
+            <property name="statusTip">
+             <string>Повна адреса на цей ж об'єкт в UE4</string>
             </property>
             <property name="plainText">
              <string/>
@@ -88,7 +115,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Actor key*:</string>
+             <string>Ключ об'єкта присвоєний UE4:</string>
             </property>
            </widget>
           </item>
@@ -99,6 +126,12 @@
               <width>16777215</width>
               <height>40</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Ключ об'єкта присвоєний UE4</string>
+            </property>
+            <property name="statusTip">
+             <string>Ключ об'єкта присвоєний UE4</string>
             </property>
             <property name="plainText">
              <string/>
@@ -114,7 +147,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Name prefix:</string>
+             <string>Префікс для імен акторів:</string>
             </property>
            </widget>
           </item>
@@ -126,6 +159,165 @@
               <height>25</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Префікс для імен акторів</string>
+            </property>
+            <property name="statusTip">
+             <string>Префікс для імен акторів</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="addParams">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Додати введені вище налаштування в список для заміни</string>
+            </property>
+            <property name="statusTip">
+             <string>Додати введені вище налаштування в список для заміни</string>
+            </property>
+            <property name="text">
+             <string>Додати налаштування</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_8">
+            <property name="toolTip">
+             <string>Налаштування зміщення та масштабування акторів на сцені та векторів в Helper</string>
+            </property>
+            <property name="statusTip">
+             <string>Налаштування зміщення та масштабування акторів на сцені та векторів в Helper</string>
+            </property>
+            <property name="title">
+             <string>Зміщення та масштабування</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_5">
+             <item row="0" column="0">
+              <widget class="QLineEdit" name="ConvSettScaleX">
+               <property name="toolTip">
+                <string>Scale X</string>
+               </property>
+               <property name="statusTip">
+                <string>Scale X</string>
+               </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="inputMask">
+                <string/>
+               </property>
+               <property name="placeholderText">
+                <string>Scale X</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="ConvSettScaleY">
+               <property name="toolTip">
+                <string>Scale Y</string>
+               </property>
+               <property name="statusTip">
+                <string>Scale Y</string>
+               </property>
+               <property name="placeholderText">
+                <string>Scale Y</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLineEdit" name="ConvSettScaleZ">
+               <property name="toolTip">
+                <string>Scale Z</string>
+               </property>
+               <property name="statusTip">
+                <string>Scale Z</string>
+               </property>
+               <property name="placeholderText">
+                <string>Scale Z</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QToolButton" name="ConvSettScaleLock">
+               <property name="toolTip">
+                <string>Заблокувати відношення між елементами</string>
+               </property>
+               <property name="statusTip">
+                <string>Заблокувати відношення між елементами</string>
+               </property>
+               <property name="text">
+                <string>L</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLineEdit" name="ConvSettLocatX">
+               <property name="toolTip">
+                <string>Location X</string>
+               </property>
+               <property name="statusTip">
+                <string>Location X</string>
+               </property>
+               <property name="placeholderText">
+                <string>Location X</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="ConvSettLocatY">
+               <property name="toolTip">
+                <string>Location Y</string>
+               </property>
+               <property name="statusTip">
+                <string>Location Y</string>
+               </property>
+               <property name="placeholderText">
+                <string>Location Y</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLineEdit" name="ConvSettLocatZ">
+               <property name="toolTip">
+                <string>Location Z</string>
+               </property>
+               <property name="statusTip">
+                <string>Location Z</string>
+               </property>
+               <property name="placeholderText">
+                <string>Location Z</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QToolButton" name="ConvSettLocatLock">
+               <property name="toolTip">
+                <string>Заблокувати відношення між елементами</string>
+               </property>
+               <property name="statusTip">
+                <string>Заблокувати відношення між елементами</string>
+               </property>
+               <property name="text">
+                <string>L</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -141,19 +333,6 @@
             </property>
            </spacer>
           </item>
-          <item>
-           <widget class="QPushButton" name="addParams">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Add param</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
         <item>
@@ -167,7 +346,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Old adress*:</string>
+             <string>Повна адреса на об'єкт в UDK*:</string>
             </property>
            </widget>
           </item>
@@ -178,6 +357,12 @@
               <width>16777215</width>
               <height>40</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Повна адреса на об'єкт в UDK</string>
+            </property>
+            <property name="statusTip">
+             <string>Повна адреса на об'єкт в UDK</string>
             </property>
             <property name="plainText">
              <string/>
@@ -193,7 +378,7 @@
              </size>
             </property>
             <property name="text">
-             <string>New adress*:</string>
+             <string>Повна адреса на цей ж об'єкт в UE4*:</string>
             </property>
            </widget>
           </item>
@@ -204,6 +389,12 @@
               <width>16777215</width>
               <height>40</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Повна адреса на цей ж об'єкт в UE4</string>
+            </property>
+            <property name="statusTip">
+             <string>Повна адреса на цей ж об'єкт в UE4</string>
             </property>
             <property name="plainText">
              <string/>
@@ -219,7 +410,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Actor key*:</string>
+             <string>Ключ об'єкта присвоєний UE4*:</string>
             </property>
            </widget>
           </item>
@@ -231,27 +422,52 @@
               <height>40</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Ключ об'єкта присвоєний UE4</string>
+            </property>
+            <property name="statusTip">
+             <string>Ключ об'єкта присвоєний UE4</string>
+            </property>
             <property name="plainText">
              <string/>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QListWidget" name="listWidget"/>
+           <widget class="QListWidget" name="listWidget">
+            <property name="toolTip">
+             <string>Список збережених значень</string>
+            </property>
+            <property name="statusTip">
+             <string>Список збережених значень</string>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <widget class="QPushButton" name="editBut">
+              <property name="toolTip">
+               <string>Редагувати вибране</string>
+              </property>
+              <property name="statusTip">
+               <string>Редагувати вибране</string>
+              </property>
               <property name="text">
-               <string>Edit</string>
+               <string>Редагувати</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="delBut">
+              <property name="toolTip">
+               <string>Видалити вибране</string>
+              </property>
+              <property name="statusTip">
+               <string>Видалити вибране</string>
+              </property>
               <property name="text">
-               <string>Delete</string>
+               <string>Видалити</string>
               </property>
              </widget>
             </item>
@@ -263,13 +479,16 @@
       </widget>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>Converter</string>
+        <string>Конвертування</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Конвертування акторів</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="1">
          <widget class="QGroupBox" name="groupBox_2">
           <property name="title">
-           <string>UE4 result:</string>
+           <string>Результат для UE4:</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
@@ -285,7 +504,7 @@
         <item row="0" column="0">
          <widget class="QGroupBox" name="groupBox">
           <property name="title">
-           <string>Paste UE3 values:</string>
+           <string>Значення із UDK:</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="0" column="0">
@@ -296,6 +515,25 @@
             </widget>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="ConvAutoCopy">
+          <property name="toolTip">
+           <string>Автоматично копіювати результат в буфер</string>
+          </property>
+          <property name="statusTip">
+           <string>Автоматично копіювати результат в буфер</string>
+          </property>
+          <property name="locale">
+           <locale language="Ukrainian" country="Ukraine"/>
+          </property>
+          <property name="text">
+           <string>В буфер</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -310,7 +548,7 @@
           <item>
            <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Rotation converter</string>
+             <string>Виправлення та корекція поворотів і векторів</string>
             </property>
            </widget>
           </item>
@@ -319,7 +557,7 @@
             <item>
              <widget class="QGroupBox" name="groupBox_3">
               <property name="title">
-               <string>UE3 Rotaton:</string>
+               <string>UE3 повороти і вектори:</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3">
                <item>
@@ -331,7 +569,7 @@
             <item>
              <widget class="QGroupBox" name="groupBox_5">
               <property name="title">
-               <string>UE 4 result:</string>
+               <string>Результат для UE4:</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_2">
                <item>
@@ -352,6 +590,38 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="HelperAutoClear">
+              <property name="toolTip">
+               <string>Очищати вміст від всього окрім поворотів та векторів</string>
+              </property>
+              <property name="statusTip">
+               <string>Очищати вміст від всього окрім поворотів та векторів</string>
+              </property>
+              <property name="text">
+               <string>Очищати</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="HelperAutoCopy">
+              <property name="toolTip">
+               <string>Автоматично копіювати результат в буфер</string>
+              </property>
+              <property name="statusTip">
+               <string>Автоматично копіювати результат в буфер</string>
+              </property>
+              <property name="text">
+               <string>В буфер</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer_2">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -364,32 +634,9 @@
               </property>
              </spacer>
             </item>
-            <item>
-             <widget class="QPushButton" name="rotatitonBut">
-              <property name="text">
-               <string>Calculate</string>
-              </property>
-              <property name="flat">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
          </layout>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>264</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>

@@ -7,6 +7,7 @@
 #include <QClipboard>
 #include <qsettings.h>
 #include <QScrollBar>
+#include <QStatusBar>
 
 #define FileToSave qApp->applicationDirPath()+"/saved.txt"
 #define UToReplVarType(x, y) Regs << QRegExp(QString("([\\t (,]+)((?:T?Array)?<?)%1(>?)[\\t ]+").arg(x), Qt::CaseInsensitive);\
@@ -35,7 +36,8 @@ QString& QReplace(QString& Str, QList<QRegExp>& What, QStringList& To, bool empt
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    pParams()
+    pParams(),
+    TimeLockChangeEvent(false)
 {
     // Ініціалізація UI
     ui->setupUi(this);
@@ -59,6 +61,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->refreshList();
 
+    ConvSettCurrLocation[0] = 0.f;
+    ConvSettCurrLocation[1] = 0.f;
+    ConvSettCurrLocation[2] = 0.f;
+    ConvSettCurrScale[0] = 1.f;
+    ConvSettCurrScale[1] = 1.f;
+    ConvSettCurrScale[2] = 1.f;
+
+    statusBar()->showMessage("Program has started");
 }
 
 MainWindow::~MainWindow()
@@ -144,30 +154,45 @@ void MainWindow::clearTextFields(bool isEditable) {
     }
 }
 
-void ConvertAllRotators(QString& Str, bool clearout = false){
-    QRegExp matcher("\\(Pitch\\s*=\\s*([+-\\d.]+),\\s*Yaw\\s*=\\s*([+-\\d.]+),\\s*Roll\\s*=\\s*([+-\\d.]+)\\)");
+// Виправлення ініціалізації поворотів (перетворення із одиниць прийнятих в UDK до звичайних градусів)
+void MainWindow::ConvertAllRotators(QString& Str, bool clearout){
+    QRegExp matcher("\\(\\s*Pitch\\s*=\\s*([+-\\d.]+)\\s*,\\s*Yaw\\s*=\\s*([+-\\d.]+)\\s*,\\s*Roll\\s*=\\s*([+-\\d.]+)\\s*\\)");
     QString Cleared("");
     for(int i = matcher.indexIn(Str);i!=-1;i = matcher.indexIn(Str, i+5)){
         float Rotation[3];
         QStringList list = matcher.capturedTexts();
         QStringList::iterator it = list.begin();
         int q = 0;
-        for ( ++it ;it!=list.end(); it++) {
-            Rotation [q++] = it->toFloat() * 0.00549316540360483;
-            qDebug() << Rotation[q];
+        for (++it; it!=list.end(); ++it) {
+            Rotation [q] = it->toFloat() * 0.00549316540360483;
+            //qDebug() << Rotation[q];
+            ++q;
         }
         Str = Str.replace(i, list[0].count(), QString("(Pitch=%1, Yaw=%2, Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
         if(clearout) Cleared = Cleared + QString("(Pitch=%1, Yaw=%2, Roll=%3)\n").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]);
     }
     if(clearout) Str = Cleared;
 }
-
-void MainWindow::on_rotatitonBut_clicked() {
-    QString Str(ui->oldRotationText->toPlainText());
-    ConvertAllRotators(Str, true);
-    ui->newRotationText->setPlainText(Str);
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(Str);
+/* Зміщення координат із виправленням на корегувальний скейл
+ * Warning! Значення використовується в регулярному виразі!
+ */
+void MainWindow::CorrectAllLocation(QString& Str, float CorrectScale[3], float CorrectLoc[3], QString BeforeStr, bool clearout){
+    QRegExp matcher("("+BeforeStr+")\\(\\s*X\\s*=\\s*([+-\\d.]+)\\s*,\\s*Y\\s*=\\s*([+-\\d.]+)\\s*,\\s*Z\\s*=\\s*([+-\\d.]+)\\s*\\)");
+    QString Cleared("");
+    for(int i = matcher.indexIn(Str); i!=-1; i = matcher.indexIn(Str, i+5)){
+        float Location[3];
+        QStringList list = matcher.capturedTexts();
+        QStringList::iterator it = list.end() - 3;
+        int q = 0;
+        for (; it!=list.end(); ++it) {
+            Location [q] = (it->toFloat() + CorrectLoc[q]) * CorrectScale[q];
+            //qDebug() << Location[q];
+            ++q;
+        }
+        Str = Str.replace(i, list[0].count(), QString("%1(X=%2, Y=%3, Z=%4)").arg(list[1]).arg(Location[0]).arg(Location[1]).arg(Location[2]));
+        if(clearout) Cleared = Cleared + QString("(X=%1, Y=%2, Z=%3)\n").arg(Location[0]).arg(Location[1]).arg(Location[2]);
+    }
+    if(clearout) Str = Cleared;
 }
 
 void MainWindow::on_stayInTop_clicked(){
@@ -301,6 +326,7 @@ void MainWindow::on_pasteText_textChanged()
         QString pTxt = ui->pasteText->toPlainText();
         QList<QRegExp> Regs;
         QStringList To;
+        if(pTxt.size()<32) return;
 
         Regs << QRegExp("\\s*Begin Map.+Begin Level")
              << QRegExp("End Level.+Begin Surface.+End Surface.+End Map")
@@ -360,7 +386,7 @@ void MainWindow::on_pasteText_textChanged()
                 QReplace(str, Regs, To);
 
                 // Переводимо поворот в градуси
-                if  (str.contains("RelativeRotation=")) {
+                if (str.contains("RelativeRotation=")) {
                      QRegExp matcher("RelativeRotation=\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)");
                      int i = matcher.indexIn(str);
                      float Rotation[3];
@@ -375,12 +401,15 @@ void MainWindow::on_pasteText_textChanged()
                      str = str.replace(QRegExp("RelativeRotation=\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)"), QString("RelativeRotation=(Pith=%1,Yaw=%2,Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
                 }
 
+
+
                 float fDrawScale = 1.0;
-                float d3Scale [3]={1,1,1};
+                // В UE4 одиниці в 2 рази менші
+                float d3Scale [3]={0.5f, 0.5f, 0.5f};
                 if  (str.contains("DrawScale=")) {
                      QRegExp matcher("DrawScale=([^\r\n]+)");
-                     int i =matcher.indexIn(str);
-                     if (i) {
+                     int i = matcher.indexIn(str);
+                     if (i!=-1) {
                          QStringList list = matcher.capturedTexts();
                          QStringList::iterator it = list.begin();
                          for ( ++it ;it!=list.end(); it++) {
@@ -392,8 +421,8 @@ void MainWindow::on_pasteText_textChanged()
 
                 if  (str.contains("DrawScale3D=")) {
                      QRegExp matcher("DrawScale3D=\\(X=([+-\\d.]+),Y=([+-\\d.]+),Z=([+-\\d.]+)\\)");
-                     int i =matcher.indexIn(str);
-                     if (i) {
+                     int i = matcher.indexIn(str);
+                     if (i!=-1) {
                          QStringList list = matcher.capturedTexts();
                          QStringList::iterator it = list.begin();
                          int q = 0;
@@ -405,7 +434,7 @@ void MainWindow::on_pasteText_textChanged()
                 }
 
                 for (int i = 0; i<3; i++) {
-                    d3Scale[i] *= fDrawScale;
+                    d3Scale[i] *= fDrawScale * ConvSettCurrScale[i];
                 }
 
                 QString scalePattern = "(X=%1,Y=%2,Z=%3)";
@@ -420,9 +449,10 @@ void MainWindow::on_pasteText_textChanged()
             }
         }
         actors.clear();
+        MainWindow::CorrectAllLocation(resultStr, ConvSettCurrScale, ConvSettCurrLocation);
         ui->newText->setPlainText(resultStr+"\r\n   End Level\r\nBegin Surface\r\nEnd Surface\r\nEnd Map");
         resultStr.resize(0);
-        QApplication::clipboard()->setText(ui->newText->toPlainText());
+        if(ui->ConvAutoCopy->isChecked()) QApplication::clipboard()->setText(ui->newText->toPlainText());
     }
 }
 
@@ -465,7 +495,125 @@ void MainWindow::on_toolButton_4_toggled(bool checked)
     }
 }
 
-void MainWindow::on_oldRotationText_textChanged()
-{
+void MainWindow::refreshConvScaleEditLine(){
+    TimeLockChangeEvent = true;
+    ui->ConvSettScaleX->setText(QString("%1").arg(ConvSettCurrScale[0]));
+    ui->ConvSettScaleY->setText(QString("%1").arg(ConvSettCurrScale[1]));
+    ui->ConvSettScaleZ->setText(QString("%1").arg(ConvSettCurrScale[2]));
+    TimeLockChangeEvent = false;
+}
+void MainWindow::refreshConvLocEditLine(){
+    TimeLockChangeEvent = true;
+    ui->ConvSettLocatX->setText(QString("%1").arg(ConvSettCurrLocation[0]));
+    ui->ConvSettLocatY->setText(QString("%1").arg(ConvSettCurrLocation[1]));
+    ui->ConvSettLocatZ->setText(QString("%1").arg(ConvSettCurrLocation[2]));
+    TimeLockChangeEvent = false;
+}
 
+bool MainWindow::setValWithRelative(QLineEdit* From, unsigned int Id, float* Array, bool lock)
+{
+    if(Id>2) return false;
+    QString input(From->text());
+    input = input.replace(QRegExp("[^-+\\d\\.,]+"), "").replace(",", ".");
+    bool isOk = false;
+    float val = input.toFloat(&isOk);
+
+    if(!isOk || input.size()==0){
+        From->setStyleSheet("border: 1px solid red;");
+        return false;
+    }else From->setStyleSheet("border: 1px solid green;");
+
+    if(val==Array[Id]) return false;
+
+    if(lock && Array[Id]!=0.f && val!=0.f){
+        float ch = val / Array[Id];
+        switch(Id){
+        case 1:
+            Array[0]*= ch;
+            Array[2]*= ch;
+            break;
+        case 2:
+            Array[1]*= ch;
+            Array[0]*= ch;
+            break;
+        default:
+            Array[1]*= ch;
+            Array[2]*= ch;
+            break;
+        }
+    }
+
+    Array[Id] = val;
+
+    return true;
+}
+
+void MainWindow::on_oldRotationText_textChanged(){
+    if(ui->HelperAutoClear->isChecked()){
+        QString StrR(ui->oldRotationText->toPlainText());
+        QString StrL(ui->oldRotationText->toPlainText());
+        ConvertAllRotators(StrR, true);
+        CorrectAllLocation(StrL, ConvSettCurrScale, ConvSettCurrLocation, "", true);
+        ui->newRotationText->setPlainText(StrR+StrL);
+    }else{
+        QString Str(ui->oldRotationText->toPlainText());
+        ConvertAllRotators(Str, false);
+        CorrectAllLocation(Str, ConvSettCurrScale, ConvSettCurrLocation, "", false);
+        ui->newRotationText->setPlainText(Str);
+    }
+    if(ui->HelperAutoCopy->isChecked()) QApplication::clipboard()->setText(ui->newRotationText->toPlainText());
+}
+
+void MainWindow::on_HelperAutoClear_toggled(bool checked)
+{
+    on_oldRotationText_textChanged();
+}
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+    switch(index){
+    case 2:
+        on_oldRotationText_textChanged();
+        break;
+    case 1:
+        on_pasteText_textChanged();
+        break;
+    }
+}
+
+void MainWindow::on_ConvSettScaleX_editingFinished()
+{
+    if(!TimeLockChangeEvent && setValWithRelative(ui->ConvSettScaleX, 0, ConvSettCurrScale, ui->ConvSettScaleLock->isChecked()))
+        refreshConvScaleEditLine();
+}
+
+void MainWindow::on_ConvSettScaleY_editingFinished()
+{
+    if(!TimeLockChangeEvent && setValWithRelative(ui->ConvSettScaleY, 1, ConvSettCurrScale, ui->ConvSettScaleLock->isChecked()))
+        refreshConvScaleEditLine();
+}
+
+void MainWindow::on_ConvSettScaleZ_editingFinished()
+{
+    if(!TimeLockChangeEvent && setValWithRelative(ui->ConvSettScaleZ, 2, ConvSettCurrScale, ui->ConvSettScaleLock->isChecked()))
+        refreshConvScaleEditLine();
+}
+
+void MainWindow::on_ConvSettLocatX_editingFinished()
+{
+    if(!TimeLockChangeEvent && setValWithRelative(ui->ConvSettLocatX, 0, ConvSettCurrLocation, ui->ConvSettLocatLock->isChecked()))
+        refreshConvLocEditLine();
+}
+
+
+void MainWindow::on_ConvSettLocatY_editingFinished()
+{
+    if(!TimeLockChangeEvent && setValWithRelative(ui->ConvSettLocatY, 1, ConvSettCurrLocation, ui->ConvSettLocatLock->isChecked()))
+        refreshConvLocEditLine();
+}
+
+void MainWindow::on_ConvSettLocatZ_editingFinished()
+{
+    if(!TimeLockChangeEvent && setValWithRelative(ui->ConvSettLocatZ, 2, ConvSettCurrLocation, ui->ConvSettLocatLock->isChecked()))
+        refreshConvLocEditLine();
 }

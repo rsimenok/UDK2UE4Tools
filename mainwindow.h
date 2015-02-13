@@ -67,13 +67,15 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    static void ConvertAllRotators(QString& Str, bool clearout = false);
+    static void CorrectAllLocation(QString& Str, float CorrectScale[3], float CorrectLoc[3], QString BeforeStr = QString("Location\\s*=\\s*"), bool clearout = false);
+    static bool setValWithRelative(QLineEdit* From, unsigned int Id, float* Array, bool lock = true);
 
 private slots:
     void on_addParams_clicked();
     void on_editBut_clicked();
     void on_listWidget_itemClicked(QListWidgetItem *item);
     void on_delBut_clicked();
-    void on_rotatitonBut_clicked();
 
     void on_stayInTop_clicked();
 
@@ -94,12 +96,34 @@ private slots:
 
     void on_oldRotationText_textChanged();
 
+    void on_HelperAutoClear_toggled(bool checked);
+
+    void on_tabWidget_currentChanged(int index);
+
+    void on_ConvSettScaleX_editingFinished();
+
+    void on_ConvSettScaleY_editingFinished();
+
+    void on_ConvSettScaleZ_editingFinished();
+
+    void on_ConvSettLocatX_editingFinished();
+
+    void on_ConvSettLocatY_editingFinished();
+
+    void on_ConvSettLocatZ_editingFinished();
+
 private:
     Ui::MainWindow *ui;
     std::vector<Params> pParams;
     void refreshList();
     void clearTextFields(bool isEditable) ;
     QString getDataBetween(QString begin,QString end, QString &source);
+
+    float ConvSettCurrScale[3];
+    float ConvSettCurrLocation[3];
+    void refreshConvScaleEditLine();
+    void refreshConvLocEditLine();
+    bool TimeLockChangeEvent;
 };
 
 #endif // MAINWINDOW_H
