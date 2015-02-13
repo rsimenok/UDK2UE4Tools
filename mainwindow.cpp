@@ -143,36 +143,34 @@ void MainWindow::clearTextFields(bool isEditable) {
         ui->keyText->setPlainText("");
     }
 }
-void MainWindow::on_rotatitonBut_clicked() {
-    if  (ui->oldRotationText->toPlainText().contains("Object.Movement.Rotation ")) {
-        // почему-то матчер не работет пришлось по говняцки написать
-          QRegExp matcher("\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)");
-          QString Str(ui->oldRotationText->toPlainText());
-          QString Cleared("");
-          qDebug() << Str;
-          for(int i = matcher.indexIn(Str);i!=-1;i = matcher.indexIn(Str, i+5)){
-              float Rotation[3];
-              QStringList list = matcher.capturedTexts();
-              QStringList::iterator it = list.begin();
-              int q = 0;
-              for ( ++it ;it!=list.end(); it++) {
-                  Rotation [q++] = it->toFloat() * 0.00549316540360483;
-                  qDebug() << Rotation[q];
-              }
-//              Str = Str.replace(i, list[0].count(), QString("(Pitch=%1,Yaw=%2,Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
-              Cleared = Cleared + QString("(Pitch=%1,Yaw=%2,Roll=%3)\n").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]);
-          }
-//        if(ui->bHelperClearAll->isChecked())
-            ui->newRotationText->setPlainText(Cleared);
-//            else
-//            ui->newRotationText->setPlainText(Str);
-        QClipboard *clipboard = QApplication::clipboard();
-        clipboard->setText(Str);
+
+void ConvertAllRotators(QString& Str, bool clearout = false){
+    QRegExp matcher("\\(Pitch\\s*=\\s*([+-\\d.]+),\\s*Yaw\\s*=\\s*([+-\\d.]+),\\s*Roll\\s*=\\s*([+-\\d.]+)\\)");
+    QString Cleared("");
+    for(int i = matcher.indexIn(Str);i!=-1;i = matcher.indexIn(Str, i+5)){
+        float Rotation[3];
+        QStringList list = matcher.capturedTexts();
+        QStringList::iterator it = list.begin();
+        int q = 0;
+        for ( ++it ;it!=list.end(); it++) {
+            Rotation [q++] = it->toFloat() * 0.00549316540360483;
+            qDebug() << Rotation[q];
+        }
+        Str = Str.replace(i, list[0].count(), QString("(Pitch=%1, Yaw=%2, Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
+        if(clearout) Cleared = Cleared + QString("(Pitch=%1, Yaw=%2, Roll=%3)\n").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]);
     }
+    if(clearout) Str = Cleared;
 }
 
-void MainWindow::on_stayInTop_clicked()
-{
+void MainWindow::on_rotatitonBut_clicked() {
+    QString Str(ui->oldRotationText->toPlainText());
+    ConvertAllRotators(Str, true);
+    ui->newRotationText->setPlainText(Str);
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(Str);
+}
+
+void MainWindow::on_stayInTop_clicked(){
     Qt::WindowFlags flags = windowFlags();
     if (ui->stayInTop->isChecked()) {
          flags |= Qt:: WindowStaysOnTopHint;
@@ -184,36 +182,41 @@ void MainWindow::on_stayInTop_clicked()
 }
 
 
-void MainWindow::on_UScriptSource_textChanged()
-{
+void MainWindow::on_UScriptSource_textChanged(){
     QString Source(ui->UScriptSource->toPlainText());
     QList<QRegExp> Regs;
     QStringList To;
 
     // Change property declaration
-    Regs << QRegExp("(\\s*)var\\((\\w+)\\)([\\t ]+[^<\\s]+(?:\\s*<\\s*(?:[^];>]+)\\s*>)?)[\\t ]+([^<;]+)<([^>]+)>;", Qt::CaseInsensitive);
-    To << "\\1UPROPERTY(Category = \"\\2\", Meta = (\\5))\\1\\3 \\4;";
-    Regs << QRegExp("(\\s*)var\\([^)]*\\)([\\t ]+[^<\\s]+(?:\\s*<\\s*(?:[^];>]+)\\s*>)?)[ \\t]+([^<;]+)<([^>]+)>;", Qt::CaseInsensitive);
-    To << "\\1UPROPERTY(Meta = (\\4))\\1\\2 \\3;";
-    /*Regs << QRegExp("(\\s*)var\((\\w+)\\)[ \\t]+([^<;]+)<(([^=;>]+=[^=;>]+)+)>;", Qt::CaseInsensitive);
+    Regs << QRegExp("(\\s*)var\\((\\w+)\\)([\\t ]+[^<\\s]+(?:\\s*<\\s*(?:[^\\];>\r\n]+)\\s*>)?)[\\t ]+([^<;\r\n]+)<([^>\r\n]+)>;", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY("+ui->UScriptConvSett_DefUP->text()+", Category = \"\\2\", Meta = (\\5))\\1\\3 \\4;";
+    Regs << QRegExp("(\\s*)var\\([^)]*\\)([\\t ]+[^<\\s]+(?:\\s*<\\s*(?:[^\\];>\r\n]+)\\s*>)?)[ \\t]+([^<;\r\n]+)<([^>\r\n]+)>;", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY("+ui->UScriptConvSett_DefUP->text()+", Meta = (\\4))\\1\\2 \\3;";
+    /*Regs << QRegExp("(\\s*)var\((\\w+)\\)[ \\t]+([^<;\r\n]+)<(([^=;>\r\n]+=[^=;>\r\n]+)+)>;", Qt::CaseInsensitive);
     To << "\\1UPROPERTY(Category = \"\\2\", Meta = (\\4))\\1\\3;";*/
-    Regs << QRegExp("(\\s*)var\\((\\w+)\\)[ \\t]+([^;]+);", Qt::CaseInsensitive);
-    To << "\\1UPROPERTY(Category = \"\\2\")\\1\\3;";
-    Regs << QRegExp("(\\s*)var\\(\\)[ \\t]+([^;]+);", Qt::CaseInsensitive);
-    To << "\\1UPROPERTY()\\1\\2;";
-    Regs << QRegExp("(\\s*)var[ \\t]+transient[ \\t]+([^;]+);", Qt::CaseInsensitive);
+    Regs << QRegExp("(\\s*)var\\((\\w+)\\)[ \\t]+([^;\r\n]+);", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY("+ui->UScriptConvSett_DefUP->text()+", Category = \"\\2\")\\1\\3;";
+    Regs << QRegExp("(\\s*)var\\(\\)[ \\t]+([^;\r\n]+);", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY("+ui->UScriptConvSett_DefUP->text()+")\\1\\2;";
+    Regs << QRegExp("(\\s*)var[ \\t]+transient[ \\t]+([^;\r\n]+);", Qt::CaseInsensitive);
     To << "\\1\\2; // #OldNotice: Transient";
-    Regs << QRegExp("(\\s*)var[ \\t]+([^;]+);", Qt::CaseInsensitive);
+    Regs << QRegExp("(\\s*)var[ \\t]+([^;\r\n]+);", Qt::CaseInsensitive);
     To << "\\1\\2;";
-    Regs << QRegExp("(\\s*)UPROPERTY\\(([^\r\n]*)\\)(\\s*)transient ([^;]+);", Qt::CaseInsensitive);
+    Regs << QRegExp("(\\s*)UPROPERTY\\(([^\r\n]*)\\)(\\s*)transient ([^;\r\n]+);", Qt::CaseInsensitive);
     To << "\\1UPROPERTY(Transient, \\2)\\3\\4;";
-    Regs << QRegExp("UPROPERTY\\(Transient, \\)", Qt::CaseInsensitive);
-    To << "UPROPERTY(Transient)";
+    Regs << QRegExp("(UPROPERTY\\([^\r\n]*),\\s*\\)", Qt::CaseInsensitive);
+    To << "\\1)";
+    Regs << QRegExp("(UPROPERTY\\()\\s*,([^\r\n]*\\))", Qt::CaseInsensitive);
+    To << "\\1\\2";
+    if(ui->UScriptConvSett_bOver->isChecked()){
+        Regs << QRegExp("(\\s*UPROPERTY\\()[^\r\n]*(\\)\\s*[^;\r\n]+\\s+bOvv?err?ide[^;\r\n]+;)", Qt::CaseInsensitive);
+        To << "\\1BlueprintReadWrite, Category=Overrides, meta=(PinHiddenByDefault)\\2";
+    }
 
     // Correct property types
-    Regs << QRegExp("([\\t (,]+)bool[\\t ]+([^;]+);", Qt::CaseInsensitive);
+    Regs << QRegExp("([\\t (,]+)bool[\\t ]+([^;\r\n]+);", Qt::CaseInsensitive);
     To << "\\1uint32 \\2 : 1;";
-    Regs << QRegExp("([\\t (,]+)array\\s*<\\s*([^];>]+)\\s*>", Qt::CaseInsensitive);
+    Regs << QRegExp("([\\t (,]+)array\\s*<\\s*([^\\];>\r\n]+)\\s*>", Qt::CaseInsensitive);
     To << "\\1TArray<\\2>";
     UToReplVarType("vector", "FVector");
     UToReplVarType("vector2d", "FVector2D");
@@ -221,6 +224,15 @@ void MainWindow::on_UScriptSource_textChanged()
     UToReplVarType("int", "int32");
     UToReplVarType("Actor", "AActor*");
     UToReplVarType("string", "FString");
+    UToReplVarType("name", "FName");
+    UToReplVarType("LinearColor", "FLinearColor");
+    UToReplVarType("Color", "FColor");
+    UToReplVarType("MAni_Info", "UCurveFloat*");
+    UToReplVarType("Texture", "UTexture*");
+    UToReplVarType("Texture2D", "UTexture2D*");
+    UToReplVarType("TextureMovie", "UMediaTexture*");
+    UToReplVarType("StaticMesh", "UStaticMesh*");
+    UToReplVarType("SkeletalMesh", "USkeletalMesh*");
 
     QReplace(Source, Regs, To);
 
@@ -234,6 +246,13 @@ void MainWindow::on_UScriptSource_textChanged()
              Source = Source.replace(i, list[0].size(), "Meta = ("+list[1]+")");
          }
     }
+
+    // Set auto advanced property if it has EditCondition (is override settings)
+    if(ui->UScriptConvSett_AAdvanced->isChecked()){
+        Regs << QRegExp("UPROPERTY\\(([^\r\n]*Meta\\s*=\\s*\\([^\r\n]*EditCondition)", Qt::CaseInsensitive);
+        To << "UPROPERTY(AdvancedDisplay, \\1";
+    }
+
     // Find and replace structdefaultproperties to empty constructor
     // Please, dont use in structure "}" or "{" (in commnet, etc),
     //  only in structdefaultproperties !
@@ -248,17 +267,26 @@ void MainWindow::on_UScriptSource_textChanged()
              list[1] = list[1].trimmed();
              // Correct struct type
              UToReplVarType(list[1], "F"+list[1]);
-             list[1] = "F"+list[1];
-             list[3] = list[3].trimmed().replace(matcher2, "\\1(\\2),").replace(",)",")").replace(";)",")");
-             QString NewStruct = "struct "+list[1]+"{"+list[2]+list[1]+"():"+list[3]+"@@@{ }";
-             NewStruct.replace(",@@@{", "{");
+             list[1] = list[1];
+             list[3] = list[3].replace(matcher2, "\\1(\\2),").replace(",)",")").replace(";)",")")
+                     .replace(QRegExp("\\(Pitch\\s*=\\s*([+-\\d.]+),\\s*Yaw\\s*=\\s*([+-\\d.]+),\\s*Roll\\s*=\\s*([+-\\d.]+)\\)"), "\\1, \\2, \\3")
+                     .replace(QRegExp("\\(X\\s*=\\s*([+-\\d.]+),\\s*Y\\s*=\\s*([+-\\d.]+),\\s*Z\\s*=\\s*([+-\\d.]+)\\)"), "\\1, \\2, \\3");
+             QString NewStruct = "struct "+list[1]+"{"+list[2]+"\n\tF"+list[1]+"():"+list[3]+"\n{ }";
+             NewStruct = NewStruct.replace(QRegExp(",\\s*\\{ \\}"), "\n\t{ }");
              Source = Source.replace(i, list[0].size(), NewStruct);
          }
     }
     // Apply corecting struct type and change structure declaration
-    Regs << QRegExp("([\t ]*)struct F?([^{\r\n}]+)\\s*\\{(\\s*)", Qt::CaseInsensitive);
-    To << "\\1USTRUCT()\r\n\\1struct F\\2\r\n\\1{\\3GENERATED_USTRUCT_BODY()\\3";
+    Regs << QRegExp("([\t ]*)struct\\s*F?([^\\s{\r\n}]+)\\s*\\{(\\s*)", Qt::CaseInsensitive);
+    To << "\\1USTRUCT("+ui->UScriptConvSett_DefUS->text()+")\r\n\\1struct F\\2\r\n\\1{\\3GENERATED_USTRUCT_BODY()\n\\3";
+
+    // Add default uproperty for structs
+    Regs << QRegExp("(struct [^{\r\n}]+\\s*\\{\\s*[^}]*)UPROPERTY\\(", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY("+ui->UScriptConvSett_DefSUP->text();
+
     QReplace(Source, Regs, To);
+
+    ConvertAllRotators(Source);
 
     ui->UCppSource->setPlainText(Source);
 }
@@ -435,4 +463,9 @@ void MainWindow::on_toolButton_4_toggled(bool checked)
     }else{
         disconnect(ui->UCppSource->verticalScrollBar(),&QScrollBar::sliderMoved,this,&MainWindow::syncUSourceScroll2);
     }
+}
+
+void MainWindow::on_oldRotationText_textChanged()
+{
+
 }

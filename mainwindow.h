@@ -92,6 +92,8 @@ private slots:
 
     void on_toolButton_4_toggled(bool checked);
 
+    void on_oldRotationText_textChanged();
+
 private:
     Ui::MainWindow *ui;
     std::vector<Params> pParams;
