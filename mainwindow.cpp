@@ -222,10 +222,6 @@ void MainWindow::on_UScriptSource_textChanged()
     UToReplVarType("Actor", "AActor*");
     UToReplVarType("string", "FString");
 
-    // Change structure declaration
-    Regs << QRegExp("([\t ]*)struct ([^{\r\n}]+)\\s*\\{(\\s*)", Qt::CaseInsensitive);
-    To << "\\1USTRUCT()\r\n\\1struct F\\2\r\n\\1{\\3GENERATED_USTRUCT_BODY()\\3";
-
     QReplace(Source, Regs, To);
 
     // Find and change Meta in UPROPERTY
@@ -249,12 +245,20 @@ void MainWindow::on_UScriptSource_textChanged()
          QRegExp matcher2("([^=\\s]+)\\s*=\\s*([^\r\n]+),*", Qt::CaseInsensitive);
          for(int i = matcher.indexIn(Source); i!=-1; i = matcher.indexIn(Source, i+5)){
              QStringList list = matcher.capturedTexts();
+             list[1] = list[1].trimmed();
+             // Correct struct type
+             UToReplVarType(list[1], "F"+list[1]);
+             list[1] = "F"+list[1];
              list[3] = list[3].trimmed().replace(matcher2, "\\1(\\2),").replace(",)",")").replace(";)",")");
              QString NewStruct = "struct "+list[1]+"{"+list[2]+list[1]+"():"+list[3]+"@@@{ }";
              NewStruct.replace(",@@@{", "{");
              Source = Source.replace(i, list[0].size(), NewStruct);
          }
     }
+    // Apply corecting struct type and change structure declaration
+    Regs << QRegExp("([\t ]*)struct F?([^{\r\n}]+)\\s*\\{(\\s*)", Qt::CaseInsensitive);
+    To << "\\1USTRUCT()\r\n\\1struct F\\2\r\n\\1{\\3GENERATED_USTRUCT_BODY()\\3";
+    QReplace(Source, Regs, To);
 
     ui->UCppSource->setPlainText(Source);
 }
