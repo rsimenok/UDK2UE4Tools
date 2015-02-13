@@ -404,8 +404,8 @@ void MainWindow::on_pasteText_textChanged()
 
 
                 float fDrawScale = 1.0;
-                // В UE4 одиниці в 2 рази менші
-                float d3Scale [3]={0.5f, 0.5f, 0.5f};
+                // В UE4 одиниці в 2 рази менші (але скейл міняти не треба =) )
+                float d3Scale [3]={1.f, 1.0f, 1.0f};
                 if  (str.contains("DrawScale=")) {
                      QRegExp matcher("DrawScale=([^\r\n]+)");
                      int i = matcher.indexIn(str);
