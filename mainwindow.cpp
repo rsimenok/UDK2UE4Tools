@@ -6,8 +6,15 @@
 #include <qdebug.h>
 #include <QClipboard>
 #include <qsettings.h>
+#include <QScrollBar>
 
 #define FileToSave qApp->applicationDirPath()+"/saved.txt"
+#define UToReplVarType(x, y) Regs << QRegExp(QString("([\\t (,]+)((?:T?Array)?<?)%1(>?)[\\t ]+").arg(x), Qt::CaseInsensitive);\
+    To << QString("\\1\\2%1\\3 ").arg(y);
+/*Regs << QRegExp("var(\\(?(?:\\w+)?\\)?[\t ]*(?:transient)?)[\t ]+"+(x)+"[\t ]+", Qt::CaseInsensitive);\
+    To << "var\\1 "+(y)+"";\
+    Regs << QRegExp("local(\\(?(?:\\w+)?\\)?[\t ]*(?:transient)?)[\t ]+"+(x)+"[\t ]+", Qt::CaseInsensitive);\
+    To << (y)+" ";*/
 
 QString& QReplace(QString& Str, QRegExp What, QString To){
     Str = Str.replace(What, To);
@@ -51,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }catch(...){ }
 
     this->refreshList();
+
 }
 
 MainWindow::~MainWindow()
@@ -182,26 +190,73 @@ void MainWindow::on_UScriptSource_textChanged()
     QList<QRegExp> Regs;
     QStringList To;
 
-    Regs << QRegExp("(\\s*)var\\((\\w+)\\) ([^<;]+)<([^>]+)>;");
-    To << "\\1UPROPERTY(Category = \"\\2\", Meta = (\\4))\\1\\3;";
-    Regs << QRegExp("(\\s*)var\\([^)]*\\) ([^<;]+)<([^>]+)>;");
-    To << "\\1UPROPERTY(Meta = (\\3))\\1\\2;";
-    Regs << QRegExp("(\\s*)var\((\\w+)\\) ([^<;]+)<(([^=;>]+=[^=;>]+)+)>;");
-    To << "\\1UPROPERTY(Category = \"\\2\", Meta = (\\4))\\1\\3;";
-    Regs << QRegExp("(\\s*)var\\((\\w+)\\) ([^;]+);");
+    // Change property declaration
+    Regs << QRegExp("(\\s*)var\\((\\w+)\\)([\\t ]+[^<\\s]+(?:\\s*<\\s*(?:[^];>]+)\\s*>)?)[\\t ]+([^<;]+)<([^>]+)>;", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY(Category = \"\\2\", Meta = (\\5))\\1\\3 \\4;";
+    Regs << QRegExp("(\\s*)var\\([^)]*\\)([\\t ]+[^<\\s]+(?:\\s*<\\s*(?:[^];>]+)\\s*>)?)[ \\t]+([^<;]+)<([^>]+)>;", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY(Meta = (\\4))\\1\\2 \\3;";
+    /*Regs << QRegExp("(\\s*)var\((\\w+)\\)[ \\t]+([^<;]+)<(([^=;>]+=[^=;>]+)+)>;", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY(Category = \"\\2\", Meta = (\\4))\\1\\3;";*/
+    Regs << QRegExp("(\\s*)var\\((\\w+)\\)[ \\t]+([^;]+);", Qt::CaseInsensitive);
     To << "\\1UPROPERTY(Category = \"\\2\")\\1\\3;";
-    Regs << QRegExp("(\\s*)var\\(\\) ([^;]+);");
+    Regs << QRegExp("(\\s*)var\\(\\)[ \\t]+([^;]+);", Qt::CaseInsensitive);
     To << "\\1UPROPERTY()\\1\\2;";
-    Regs << QRegExp("(\\s*)var transient ([^;]+);");
+    Regs << QRegExp("(\\s*)var[ \\t]+transient[ \\t]+([^;]+);", Qt::CaseInsensitive);
     To << "\\1\\2; // #OldNotice: Transient";
-    Regs << QRegExp("(\\s*)var ([^;]+);");
+    Regs << QRegExp("(\\s*)var[ \\t]+([^;]+);", Qt::CaseInsensitive);
     To << "\\1\\2;";
-    Regs << QRegExp("(\\s*)UPROPERTY\\(([^\r\n]*)\\)(\\s*)transient ([^;]+);");
+    Regs << QRegExp("(\\s*)UPROPERTY\\(([^\r\n]*)\\)(\\s*)transient ([^;]+);", Qt::CaseInsensitive);
     To << "\\1UPROPERTY(Transient, \\2)\\3\\4;";
-    Regs << QRegExp("UPROPERTY\\(Transient, \\)");
+    Regs << QRegExp("UPROPERTY\\(Transient, \\)", Qt::CaseInsensitive);
     To << "UPROPERTY(Transient)";
 
-    ui->UCppSource->setPlainText(QReplace(Source, Regs, To));
+    // Correct property types
+    Regs << QRegExp("([\\t (,]+)bool[\\t ]+([^;]+);", Qt::CaseInsensitive);
+    To << "\\1uint32 \\2 : 1;";
+    Regs << QRegExp("([\\t (,]+)array\\s*<\\s*([^];>]+)\\s*>", Qt::CaseInsensitive);
+    To << "\\1TArray<\\2>";
+    UToReplVarType("vector", "FVector");
+    UToReplVarType("vector2d", "FVector2D");
+    UToReplVarType("rotator", "FRotator");
+    UToReplVarType("int", "int32");
+    UToReplVarType("Actor", "AActor*");
+    UToReplVarType("string", "FString");
+
+    // Change structure declaration
+    Regs << QRegExp("([\t ]*)struct ([^{\r\n}]+)\\s*\\{(\\s*)", Qt::CaseInsensitive);
+    To << "\\1USTRUCT()\r\n\\1struct F\\2\r\n\\1{\\3GENERATED_USTRUCT_BODY()\\3";
+
+    QReplace(Source, Regs, To);
+
+    // Find and change Meta in UPROPERTY
+    if (Source.contains("Meta =")) {
+         QRegExp matcher("Meta = \\(([^)]+)\\)", Qt::CaseInsensitive);
+         QRegExp matcher2("([^=]+)\\s*=\\s*([^,]+)", Qt::CaseInsensitive);
+         for(int i = matcher.indexIn(Source); i!=-1; i = matcher.indexIn(Source, i+5)){
+             QStringList list = matcher.capturedTexts();
+             list[1] = list[1].replace("|", ", ").replace(matcher2, "\\1 = \"\\2\"");
+             Source = Source.replace(i, list[0].size(), "Meta = ("+list[1]+")");
+         }
+    }
+    // Find and replace structdefaultproperties to empty constructor
+    // Please, dont use in structure "}" or "{" (in commnet, etc),
+    //  only in structdefaultproperties !
+    if (Source.contains("structdefaultproperties")) {
+         // 1 - struct name
+         // 2 - in structrure
+         // 3 - defaultproperties
+         QRegExp matcher("struct\\s+([^{\\s]+)\\s*\\{([^{]+)structdefaultproperties\\{([^}]+)\\}", Qt::CaseInsensitive);
+         QRegExp matcher2("([^=\\s]+)\\s*=\\s*([^\r\n]+),*", Qt::CaseInsensitive);
+         for(int i = matcher.indexIn(Source); i!=-1; i = matcher.indexIn(Source, i+5)){
+             QStringList list = matcher.capturedTexts();
+             list[3] = list[3].trimmed().replace(matcher2, "\\1(\\2),").replace(",)",")").replace(";)",")");
+             QString NewStruct = "struct "+list[1]+"{"+list[2]+list[1]+"():"+list[3]+"@@@{ }";
+             NewStruct.replace(",@@@{", "{");
+             Source = Source.replace(i, list[0].size(), NewStruct);
+         }
+    }
+
+    ui->UCppSource->setPlainText(Source);
 }
 
 void MainWindow::on_pasteText_textChanged()
@@ -336,5 +391,44 @@ void MainWindow::on_pasteText_textChanged()
         ui->newText->setPlainText(resultStr+"\r\n   End Level\r\nBegin Surface\r\nEnd Surface\r\nEnd Map");
         resultStr.resize(0);
         QApplication::clipboard()->setText(ui->newText->toPlainText());
+    }
+}
+
+void MainWindow::on_toolButton_clicked()
+{
+    ui->UScriptSource->setPlainText(QApplication::clipboard()->text());
+}
+
+void MainWindow::on_toolButton_2_clicked()
+{
+    QApplication::clipboard()->setText(ui->UCppSource->toPlainText());
+}
+
+void MainWindow::syncUSourceScroll1(int nPos){
+    QScrollBar* bar = ui->UCppSource->verticalScrollBar();
+    nPos = (float)bar->maximum() / (float)ui->UScriptSource->verticalScrollBar()->maximum() * nPos;
+    bar->setSliderPosition(nPos);
+}
+void MainWindow::syncUSourceScroll2(int nPos){
+    QScrollBar* bar = ui->UScriptSource->verticalScrollBar();
+    nPos = (float)bar->maximum() / (float)ui->UCppSource->verticalScrollBar()->maximum() * nPos;
+    bar->setSliderPosition(nPos);
+}
+
+void MainWindow::on_toolButton_3_toggled(bool checked)
+{
+    if(checked){
+        connect(ui->UScriptSource->verticalScrollBar(),&QScrollBar::sliderMoved,this,&MainWindow::syncUSourceScroll1);
+    }else{
+        disconnect(ui->UScriptSource->verticalScrollBar(),&QScrollBar::sliderMoved,this,&MainWindow::syncUSourceScroll1);
+    }
+}
+
+void MainWindow::on_toolButton_4_toggled(bool checked)
+{
+    if(checked){
+        connect(ui->UCppSource->verticalScrollBar(),&QScrollBar::sliderMoved,this,&MainWindow::syncUSourceScroll2);
+    }else{
+        disconnect(ui->UCppSource->verticalScrollBar(),&QScrollBar::sliderMoved,this,&MainWindow::syncUSourceScroll2);
     }
 }

@@ -81,6 +81,17 @@ private slots:
 
     void on_pasteText_textChanged();
 
+    void on_toolButton_clicked();
+
+    void on_toolButton_2_clicked();
+
+    void on_toolButton_3_toggled(bool checked);
+
+    void syncUSourceScroll1(int nPos);
+    void syncUSourceScroll2(int nPos);
+
+    void on_toolButton_4_toggled(bool checked);
+
 private:
     Ui::MainWindow *ui;
     std::vector<Params> pParams;

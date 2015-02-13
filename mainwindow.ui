@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
@@ -400,15 +400,69 @@
           <property name="title">
            <string>UnrealScript</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
             <widget class="QTextBrowser" name="UScriptSource">
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOn</enum>
+             </property>
              <property name="readOnly">
               <bool>false</bool>
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QFrame" name="frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_8">
+              <item>
+               <widget class="QToolButton" name="toolButton">
+                <property name="toolTip">
+                 <string>Auto paste and work</string>
+                </property>
+                <property name="statusTip">
+                 <string>Auto paste and work</string>
+                </property>
+                <property name="whatsThis">
+                 <string>Helper: Faster!</string>
+                </property>
+                <property name="text">
+                 <string>F</string>
+                </property>
+                <property name="shortcut">
+                 <string>Ctrl+Shift+V</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="toolButton_3">
+                <property name="text">
+                 <string>S</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
           </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_7">
+          <property name="title">
+           <string>GroupBox</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -419,9 +473,53 @@
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
             <widget class="QTextEdit" name="UCppSource">
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOn</enum>
+             </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QFrame" name="frame_2">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="QToolButton" name="toolButton_2">
+                <property name="toolTip">
+                 <string>Auto copy to clipboard</string>
+                </property>
+                <property name="statusTip">
+                 <string>Auto copy to clipboard</string>
+                </property>
+                <property name="whatsThis">
+                 <string>Helper: Faster!</string>
+                </property>
+                <property name="text">
+                 <string>F</string>
+                </property>
+                <property name="shortcut">
+                 <string>Ctrl+Shift+C</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="toolButton_4">
+                <property name="text">
+                 <string>S</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
