@@ -12,51 +12,44 @@ class MainWindow;
 struct Params {
     QString oldAddr;
     QString newAddr;
-    QString key;
 
     // Пустий конструктор
     Params():
         oldAddr(""),
-        newAddr(""),
-        key("")
+        newAddr("")
     {
 
     }
 
     // Конструктор із значень
-    Params(QString a, QString b, QString c):
+    Params(QString a, QString b):
         oldAddr(a),
-        newAddr(b),
-        key(c)
+        newAddr(b)
     {
         oldAddr = oldAddr.trimmed();
         newAddr = newAddr.trimmed();
-        key     = key.trimmed();
     }
 
     // Конструктор із одного рядка типу як при виведенні через ToString
     Params(QString& FromSave):
         oldAddr(""),
-        newAddr(""),
-        key("")
+        newAddr("")
     {
         QStringList list = FromSave.split("\t");
-        if(list.count() > 2){
+        if(list.count() > 1){
             oldAddr = list[0];
             newAddr = list[1];
-            key     = list[2];
             oldAddr = oldAddr.trimmed();
             newAddr = newAddr.trimmed();
-            key     = key.trimmed();
         }
     }
 
     bool valid(){
-        return oldAddr!="" && newAddr!="" && key!="";
+        return oldAddr!="" && newAddr!="";
     }
 
     QString ToString(){
-        return QString("%1\t%2\t%3\n").arg(oldAddr).arg(newAddr).arg(key);
+        return QString("%1\t%2\t%3\n").arg(oldAddr).arg(newAddr);
     }
 };
 

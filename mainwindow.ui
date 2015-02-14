@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>763</width>
-    <height>424</height>
+    <width>703</width>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
@@ -100,38 +100,6 @@
             </property>
             <property name="statusTip">
              <string>Повна адреса на цей ж об'єкт в UE4</string>
-            </property>
-            <property name="plainText">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Ключ об'єкта присвоєний UE4:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPlainTextEdit" name="keyText">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Ключ об'єкта присвоєний UE4</string>
-            </property>
-            <property name="statusTip">
-             <string>Ключ об'єкта присвоєний UE4</string>
             </property>
             <property name="plainText">
              <string/>
@@ -334,6 +302,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>version 0.4a build 005</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -408,38 +383,6 @@
             </property>
             <property name="statusTip">
              <string>Повна адреса на цей ж об'єкт в UE4</string>
-            </property>
-            <property name="plainText">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_41">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Ключ об'єкта присвоєний UE4*:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPlainTextEdit" name="editKey">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Ключ об'єкта присвоєний UE4</string>
-            </property>
-            <property name="statusTip">
-             <string>Ключ об'єкта присвоєний UE4</string>
             </property>
             <property name="plainText">
              <string/>

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
 #include <qdebug.h>
@@ -108,10 +107,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_addParams_clicked()
 {
-    if (ui->oldAddrText->toPlainText().isEmpty() || ui->newAddrText->toPlainText().isEmpty() || ui->keyText->toPlainText().isEmpty()) {
+    if (ui->oldAddrText->toPlainText().isEmpty() || ui->newAddrText->toPlainText().isEmpty()) {
         return;
     }
-    pParams.push_back(Params(ui->oldAddrText->toPlainText(), ui->newAddrText->toPlainText(), ui->keyText->toPlainText()));
+    pParams.push_back(Params(ui->oldAddrText->toPlainText(), ui->newAddrText->toPlainText()));
     this->clearTextFields(false);
     this->refreshList();
 }
@@ -120,7 +119,7 @@ void MainWindow::refreshList()
 {
     ui->listWidget->clear();
     for (std::vector<Params>::iterator i = pParams.begin(); i<pParams.end(); i++){
-        ui->listWidget->addItem(i->oldAddr+" | "+i->newAddr+" | "+i->key);
+        ui->listWidget->addItem(i->oldAddr+" | "+i->newAddr);
     }
 }
 
@@ -133,7 +132,6 @@ void MainWindow::on_editBut_clicked()
     int id=ui->listWidget->row(items[0]);
     pParams[id].oldAddr = ui->editOldAddr->toPlainText();
     pParams[id].newAddr = ui->editNewAddr->toPlainText();
-    pParams[id].key = ui->editKey->toPlainText();
 
     this->clearTextFields(true);
     this->refreshList();
@@ -144,7 +142,6 @@ void MainWindow::on_listWidget_itemClicked(QListWidgetItem *item)
     int id=ui->listWidget->row(item);
     ui->editOldAddr->setPlainText(pParams[id].oldAddr);
     ui->editNewAddr->setPlainText(pParams[id].newAddr);
-    ui->editKey->setPlainText(pParams[id].key);
 }
 
 void MainWindow::on_delBut_clicked()
@@ -159,15 +156,14 @@ void MainWindow::on_delBut_clicked()
     this->refreshList();
 }
 
-void MainWindow::clearTextFields(bool isEditable) {
+void MainWindow::clearTextFields(bool isEditable)
+{
     if (isEditable) {
         ui->editOldAddr->setPlainText("");
         ui->editNewAddr->setPlainText("");
-        ui->editKey->setPlainText("");
     }else{
         ui->oldAddrText->setPlainText("");
         ui->newAddrText->setPlainText("");
-        ui->keyText->setPlainText("");
     }
 }
 
@@ -212,7 +208,8 @@ void MainWindow::CorrectAllLocation(QString& Str, float CorrectScale[3], float C
     if(clearout) Str = Cleared;
 }
 
-void MainWindow::on_stayInTop_clicked(){
+void MainWindow::on_stayInTop_clicked()
+{
     Qt::WindowFlags flags = windowFlags();
     if (ui->stayInTop->isChecked()) {
          flags |= Qt:: WindowStaysOnTopHint;
@@ -224,7 +221,8 @@ void MainWindow::on_stayInTop_clicked(){
 }
 
 
-void MainWindow::on_UScriptSource_textChanged(){
+void MainWindow::on_UScriptSource_textChanged()
+{
     QString Source(ui->UScriptSource->toPlainText());
     QList<QRegExp> Regs;
     QStringList To;
@@ -337,93 +335,106 @@ void MainWindow::on_UScriptSource_textChanged(){
 
 void MainWindow::on_pasteText_textChanged()
 {
-    if (pParams.size()<1) {
-        QMessageBox msgBox;
-         msgBox.setText("Add params before convertation.");
-         msgBox.exec();
-    }else{
         QString pTxt = ui->pasteText->toPlainText();
+        // Якщо менше ніж 32 символи, то нічого не робимо (просто очищаємо)
+        if(pTxt.size()<32){
+            ui->newText->setPlainText("");
+            return;
+        }
         QList<QRegExp> Regs;
         QStringList To;
-        if(pTxt.size()<32) return;
 
-        Regs << QRegExp("\\s*Begin Map.+Begin Level")
-             << QRegExp("End Level.+Begin Surface.+End Surface.+End Map")
-             << QRegExp("\\s*End Actor");
+        Regs << QRegExp("\\s*Begin\\s*Map.+Begin\\s*Level", Qt::CaseInsensitive)
+             << QRegExp("End\\s*Level.+Begin\\s*Surface.+End\\s*Surface.+End\\s*Map", Qt::CaseInsensitive)
+             << QRegExp("\\s*End\\s*Actor", Qt::CaseInsensitive);
         To << "" << "" << "";
 
-        for (std::vector<Params>::iterator i = pParams.begin(); i<pParams.end(); i++) {
-            pTxt = pTxt.replace(i->oldAddr, i->newAddr+"\r\n            "+i->key);
+        // Заміняємо все, що налаштовано в параметрах
+        for (Params P: pParams) {
+            pTxt = pTxt.replace(P.oldAddr, P.newAddr);
         }
 
-        Regs << QRegExp("Location")
-             << QRegExp("Rotation")
-             << QRegExp("Tag")
-             << QRegExp("Layer")
-             << QRegExp("\\s*ObjectArchetype[^\r\n]+[\r\n]*")
-             << QRegExp("\\s*CollisionComponent[^\r\n]+[\r\n]*")
-             << QRegExp("\\s*bNoEncroachCheck[^\r\n]+[\r\n]*")
-             << QRegExp("\\s*CollisionType[^\r\n]+[\r\n]*")
-             << QRegExp("(\\s{2,})Name\\s*=\\s*([^\r\n]+)")
-             << QRegExp("\r\n") << QRegExp("\r") << QRegExp("\n\n") << QRegExp("\n");
-        To << "RelativeLocation"
-           << "RelativeRotation"
-           << "Tags(0)"
-           << "Tags(1)"
-           << "\r\n" << "\r\n" << "\r\n" << "\r\n"
-           << "\\1ActorLabel=\\2"
-           << "\n" << "\n" << "\n" << "\r\n";
+        // Переводимо всі повороти в градуси
+        ConvertAllRotators(pTxt, false);
+
+        // o_O
+        Regs << QRegExp("\r\n") << QRegExp("\r") << QRegExp("\n\n") << QRegExp("\n");
+        To << "\n" << "\n" << "\n" << "\r\n";
 
         QReplace(pTxt, Regs, To);
         pTxt = pTxt.trimmed();
 
         QString resultStr = "Begin Map\r\n   Begin Level";
+        // Розбиваємо на актори
         QStringList actors = pTxt.split("Begin Actor");
         pTxt.resize(0);
-        int uNumb = 1;
-        for (QString str : actors) {
+        int uNumb = 0;
+        float GlobalArgScale = (ConvSettCurrScale[0]+ConvSettCurrScale[1]+ConvSettCurrScale[2])/3.f;
+        for (; !actors.isEmpty(); actors.pop_front()) {
+            QString str = actors.first();
             str = str.trimmed();
             QString type = str.mid(6, str.indexOf(" ")-6);
+            uNumb++;
+
             if (type == "StaticMeshActor") {
-                Regs << QRegExp("Name=StaticMeshComponent0")
-                     << QRegExp("Name=[^\"\\s]+(\\s)")
-                     << QRegExp("Engine.Default__StaticMeshActor:StaticMeshComponent0")
-                     << QRegExp("\\sObjName=\\S+")
-                     << QRegExp("(\\s*\\w*DerivedDataKey[^\r\n]+).+([\r\n]+[\\t ]*End Object)(.+)[\r\n]+(\\s+RelativeLocation.+DrawScale[^\r\n]+[\r\n]*)")
-                     << QRegExp("(Begin Object.+ Archetype=\\S+\\s+)")
-                     << QRegExp("\\s*StaticMeshComponent=StaticMeshComponent[^\r\n]+[\r\n]*")
-                     << QRegExp("\\s*Components[^\r\n]+[\r\n]*");
-                To << "Name=\"StaticMeshComponent0\""
-                   << QString("Name=%1_SMActor_%2\\1").arg(ui->namePrefixText->toPlainText()).arg(uNumb)
-                   << "/Script/Engine.Default__StaticMeshActor:StaticMeshComponent0"
-                   << ""
-                   << "\\1\r\n\\4EndObject\\3\r\n"
-                   << "\\1         End Object\r\n         Begin Object Name=\"StaticMeshComponent0\"\r\n"
-                   << "\r\n         StaticMeshComponent=StaticMeshComponent0"
-                   << "\r\n         RootComponent=StaticMeshComponent0\r\n";
+                QString ResCurr = "      Begin Actor Class=StaticMeshActor Name=StaticMeshActor_%1 Archetype=StaticMeshActor'/Script/Engine.Default__StaticMeshActor'\
+\r\n         Begin Object Class=StaticMeshComponent Name=\"StaticMeshComponent0\" Archetype=StaticMeshComponent'/Script/Engine.Default__StaticMeshActor:StaticMeshComponent0'\
+\r\n         End Object\
+\r\n         Begin Object Name=\"StaticMeshComponent0\"";
+                ResCurr = ResCurr.arg(uNumb);
 
-                QReplace(str, Regs, To);
+                // Set StaticMesh
+                UToGetAndSetSimple("\\s+StaticMesh\\s*=\\s*([^\r\n]+)", "\n            StaticMesh="+list[1].trimmed());
+                // Set LightmassSettings
+                UToGetAndSetSimple("\\s+LightmassSettings\\s*=\\s*([^\r\n]+)", "\n            LightmassSettings="+list[1].trimmed());
+                // Set MinDrawDistance
+                UToGetAndSetFloat("\\s+MinDrawDistance\\s*=\\s*([^\r\n]+)", QString("\n            MinDrawDistance=%1").arg(val*GlobalArgScale), 1);
+                // Set LDMaxDrawDistance
+                UToGetAndSetFloat("\\s+MaxDrawDistance\\s*=\\s*([^\r\n]+)", QString("\n            LDMaxDrawDistance=%1").arg(val*GlobalArgScale), 1);
+                // Set CachedMaxDrawDistance
+                UToGetAndSetFloat("\\s+CachedMaxDrawDistance\\s*=\\s*([^\r\n]+)", QString("\n            CachedMaxDrawDistance=%1").arg(val*GlobalArgScale), 1);
+                // Set CastShadow
+                UToGetAndSetSimple("\\s+CastShadow\\s*=\\s*([^\r\n]+)", "\n            CastShadow="+list[1].trimmed());
+                // Set CastStaticShadow
+                UToGetAndSetSimple("\\s+bCastStaticShadow\\s*=\\s*([^\r\n]+)", "\n            bCastStaticShadow="+list[1].trimmed());
+                // Set CastDynamicShadow
+                UToGetAndSetSimple("\\s+bCastDynamicShadow\\s*=\\s*([^\r\n]+)", "\n            bCastDynamicShadow="+list[1].trimmed());
+                // Set SelfShadowOnly
+                UToGetAndSetSimple("\\s+bSelfShadowOnly\\s*=\\s*([^\r\n]+)", "\n            bSelfShadowOnly="+list[1].trimmed());
+                // Set CastHiddenShadow
+                UToGetAndSetSimple("\\s+bCastHiddenShadow\\s*=\\s*([^\r\n]+)", "\n            bCastHiddenShadow="+list[1].trimmed());
+                // Set CastShadowAsTwoSided
+                UToGetAndSetSimple("\\s+bCastShadowAsTwoSided\\s*=\\s*([^\r\n]+)", "\n            bCastShadowAsTwoSided="+list[1].trimmed());
+                // Set DetailMode
+                UToGetAndSetSimple("\\s+DetailMode\\s*=\\s*([^\r\n]+)", "\n            DetailMode="+list[1].trimmed());
+                // Set Location
+                UToGetAndSetSimple("\\s+Location\\s*=\\s*([^\r\n]+)", "\n            RelativeLocation="+list[1].trimmed());
+                // Set Rotation
+                UToGetAndSetSimple("\\s+Rotation\\s*=\\s*([^\r\n]+)", "\n            RelativeRotation="+list[1].trimmed());
 
-                // Переводимо поворот в градуси
-                if (str.contains("RelativeRotation=")) {
-                     QRegExp matcher("RelativeRotation=\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)");
-                     int i = matcher.indexIn(str);
-                     float Rotation[3];
-                     if (i!=-1) {
-                         QStringList list = matcher.capturedTexts();
-                         QStringList::iterator it = list.begin();
-                         int q = 0;
-                         for ( ++it ;it!=list.end(); it++) {
-                             Rotation [q++] = it->toFloat() * 0.00549316540360483;
-                         }
-                     }
-                     str = str.replace(QRegExp("RelativeRotation=\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)"), QString("RelativeRotation=(Pith=%1,Yaw=%2,Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
+                { // Set Component visibility
+                    QRegExp matcher("\\s+HiddenGame\\s*=\\s*True", Qt::CaseInsensitive);
+                    QRegExp matcher2("\\s+HiddenEditor\\s*=\\s*True", Qt::CaseInsensitive);
+                    if(matcher.indexIn(str)!=-1 || matcher2.indexIn(str)!=-1){
+                        ResCurr+= "\n            bVisible=False";
+                    }
+                }
+                { // Set RecieveDecals
+                    QRegExp matcher("\\s+bAcceptsStaticDecals\\s*=\\s*False", Qt::CaseInsensitive);
+                    QRegExp matcher2("\\s+bAcceptsDynamicDecals\\s*=\\s*False", Qt::CaseInsensitive);
+                    if(matcher.indexIn(str)!=-1 || matcher2.indexIn(str)!=-1){
+                        ResCurr+= "\n            bReceivesDecals=False";
+                    }
                 }
 
+                // Set Tag
+                UToGetAndSetSimple("\\s+Tag\\s*=\\s*\"([^\"\r\n]+)\"", "\n            Tag(0)=\""+list[1]+"\"");
+                // Transfer Layer to Tag
+                UToGetAndSetSimple("\\s+Layer\\s*=\\s*\"([^\"\r\n]+)\"", "\n            Tag(1)=\""+list[1]+"\"");
+
                 float fDrawScale = 1.0;
-                // В UE4 одиниці в 2 рази менші (але скейл міняти не треба =) )
-                float d3Scale [3]={1.f, 1.0f, 1.0f};
-                if  (str.contains("DrawScale=")) {
+                float d3Scale [3]={1.f, 1.f, 1.f};
+                if (str.contains("DrawScale=")) {
                      QRegExp matcher("DrawScale=([^\r\n]+)");
                      int i = matcher.indexIn(str);
                      if (i!=-1) {
@@ -435,8 +446,7 @@ void MainWindow::on_pasteText_textChanged()
                      }
                      str = str.replace(QRegExp("\\s*DrawScale=[^\r\n]+[\r\n]*"), "");
                 }
-
-                if  (str.contains("DrawScale3D=")) {
+                if (str.contains("DrawScale3D=")) {
                      QRegExp matcher("DrawScale3D=\\(X=([+-\\d.]+),Y=([+-\\d.]+),Z=([+-\\d.]+)\\)");
                      int i = matcher.indexIn(str);
                      if (i!=-1) {
@@ -449,29 +459,32 @@ void MainWindow::on_pasteText_textChanged()
                      }
                      str = str.replace(QRegExp("\\s*DrawScale3D=[^\r\n]+[\r\n]*"), "");
                 }
-
                 for (int i = 0; i<3; i++) {
                     d3Scale[i] *= fDrawScale * ConvSettCurrScale[i];
                 }
-
                 QString scalePattern = "(X=%1,Y=%2,Z=%3)";
                 scalePattern = scalePattern.arg(d3Scale[0]).arg(d3Scale[1]).arg(d3Scale[2]);
+                ResCurr+="\n            BodyInstance=(Scale3D="+scalePattern+")\n            RelativeScale3D="+scalePattern;
 
-                str = str.replace(QRegExp("(\\s*DerivedDataKey=[^\r\n]+[\r\n]*)"), "\\1         BodyInstance=(Scale3D="+scalePattern+",CollisionProfileName=\"Custom\",CollisionResponses=(ResponseArray=((Channel=\"Pawn\",Response=ECR_Ignore),(Channel=\"PhysicsBody\",Response=ECR_Ignore))))\r\n         RelativeScale3D="+scalePattern+"\r\n");
-                str = str.replace("         Relative", "              Relative");
-                str = str.replace("EndObject", "\r\n         End Object");
-                // o_O
-                str = str.replace("\r\n\r\n", "\r\n").replace("\n\n", "\n").replace("\r\r", "\r").replace("\r\n\r\n", "\r\n");
-                resultStr += "\r\n      Begin Actor "+str+"\r\n      End Actor";
+                ResCurr+="\n         End Object";
+                // Set bHidden
+                UToGetAndSetSimple("\\s+bHidden\\s*=\\s*([^\r\n]+)", "\n            bHidden="+list[1].trimmed());
+
+                ResCurr+=QString("\r\n         StaticMeshComponent=StaticMeshComponent0\
+\r\n         RootComponent=StaticMeshComponent0\
+\r\n         ActorLabel=\"StaticMeshActor_%1\"\
+\r\n      End Actor").arg(uNumb);
+                resultStr += "\r\n"+ResCurr;
             }else
             if(type == "PointLight" || type == "PointLightMovable"){
-                QString ResCurr = "      Begin Actor Class=PointLight Name=PointLight_666 Archetype=PointLight'/Script/Engine.Default__PointLight'\
+                QString ResCurr = "      Begin Actor Class=PointLight Name=PointLight_%1 Archetype=PointLight'/Script/Engine.Default__PointLight'\
 \r\n         Begin Object Class=PointLightComponent Name=\"LightComponent0\" Archetype=PointLightComponent'/Script/Engine.Default__PointLight:LightComponent0'\
 \r\n         End Object\
 \r\n         Begin Object Name=\"LightComponent0\"";
+                ResCurr = ResCurr.arg(uNumb);
 
                 // Set AttenuationRadius
-                UToGetAndSetSimple("\\s+Radius\\s*=\\s*([^\r\n]+)", "\n            AttenuationRadius="+list[1].trimmed());
+                UToGetAndSetFloat("\\s+Radius\\s*=\\s*([^\r\n]+)", QString("\n            AttenuationRadius=%1").arg(val*GlobalArgScale), 1);
                 // Set Intensity
                 UToGetAndSetFloat("\\s+Brightness\\s*=\\s*([^\r\n]+)", QString("\n            Intensity=%1").arg(val*5000.f), 1);
                 // Set LightColor
@@ -487,12 +500,12 @@ void MainWindow::on_pasteText_textChanged()
                 // Transfer Layer to Tag
                 UToGetAndSetSimple("\\s+Layer\\s*=\\s*\"([^\"\r\n]+)\"", "\n            Tag(1)=\""+list[1]+"\"");
 
-                ResCurr+="\n         End Object\
+                ResCurr+=QString("\n         End Object\
 \r\n         PointLightComponent=LightComponent0\
 \r\n         LightComponent=LightComponent0\
 \r\n         RootComponent=LightComponent0\
-\r\n         ActorLabel=\"PointLight\"\
-\r\n      End Actor";
+\r\n         ActorLabel=\"PointLight_%1\"\
+\r\n      End Actor").arg(uNumb);
                 resultStr += "\r\n"+ResCurr;
             }
         }
@@ -501,7 +514,6 @@ void MainWindow::on_pasteText_textChanged()
         ui->newText->setPlainText(resultStr+"\r\n   End Level\r\nBegin Surface\r\nEnd Surface\r\nEnd Map");
         resultStr.resize(0);
         if(ui->ConvAutoCopy->isChecked()) QApplication::clipboard()->setText(ui->newText->toPlainText());
-    }
 }
 
 void MainWindow::on_toolButton_clicked()
