@@ -24,7 +24,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
@@ -603,6 +603,22 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="HelperAutoCopy">
+              <property name="toolTip">
+               <string>Автоматично копіювати результат в буфер</string>
+              </property>
+              <property name="statusTip">
+               <string>Автоматично копіювати результат в буфер</string>
+              </property>
+              <property name="text">
+               <string>В буфер</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="HelperAutoClear">
               <property name="toolTip">
                <string>Очищати вміст від всього окрім поворотів та векторів</string>
@@ -619,18 +635,15 @@
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="HelperAutoCopy">
+             <widget class="QLineEdit" name="HelperClearPrefix">
               <property name="toolTip">
-               <string>Автоматично копіювати результат в буфер</string>
+               <string>Як має починатися вектор, щоб його було оброблено (використовується в регулярному виразі). Наприклад, для ключів із Matinee: OutVals*=s*</string>
               </property>
               <property name="statusTip">
-               <string>Автоматично копіювати результат в буфер</string>
+               <string>Як має починатися вектор, щоб його було оброблено (використовується в регулярному виразі). Наприклад, для ключів із Matinee: OutVal\s*=\s*</string>
               </property>
               <property name="text">
-               <string>В буфер</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
+               <string/>
               </property>
              </widget>
             </item>

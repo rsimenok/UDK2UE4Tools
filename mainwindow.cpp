@@ -601,7 +601,7 @@ void MainWindow::on_oldRotationText_textChanged(){
         QString StrR(ui->oldRotationText->toPlainText());
         QString StrL(ui->oldRotationText->toPlainText());
         ConvertAllRotators(StrR, true);
-        CorrectAllLocation(StrL, ConvSettCurrScale, ConvSettCurrLocation, "", true);
+        CorrectAllLocation(StrL, ConvSettCurrScale, ConvSettCurrLocation, ui->HelperClearPrefix->text(), true);
         ui->newRotationText->setPlainText(StrR+StrL);
     }else{
         QString Str(ui->oldRotationText->toPlainText());
