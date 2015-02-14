@@ -16,6 +16,23 @@
     To << "var\\1 "+(y)+"";\
     Regs << QRegExp("local(\\(?(?:\\w+)?\\)?[\t ]*(?:transient)?)[\t ]+"+(x)+"[\t ]+", Qt::CaseInsensitive);\
     To << (y)+" ";*/
+#define UToGetAndSetSimple(x, y) { QRegExp matcher(x, Qt::CaseInsensitive);\
+int i = matcher.indexIn(str);\
+if(i!=-1){\
+    QStringList list = matcher.capturedTexts();\
+    ResCurr+= y;\
+}\
+}
+#define UToGetAndSetFloat(x, y, id) { QRegExp matcher(x, Qt::CaseInsensitive);\
+int i = matcher.indexIn(str);\
+if(i!=-1){\
+    QStringList list = matcher.capturedTexts();\
+    bool isOk = false;\
+    float val = list[id].toFloat(&isOk);\
+    if(isOk)\
+        ResCurr+= y;\
+}\
+}
 
 QString& QReplace(QString& Str, QRegExp What, QString To){
     Str = Str.replace(What, To);
@@ -258,6 +275,8 @@ void MainWindow::on_UScriptSource_textChanged(){
     UToReplVarType("TextureMovie", "UMediaTexture*");
     UToReplVarType("StaticMesh", "UStaticMesh*");
     UToReplVarType("SkeletalMesh", "USkeletalMesh*");
+    UToReplVarType("ParticleSystem", "UParticleSystem*");
+    UToReplVarType("SoundCue", "USoundCue*");
 
     QReplace(Source, Regs, To);
 
@@ -401,8 +420,6 @@ void MainWindow::on_pasteText_textChanged()
                      str = str.replace(QRegExp("RelativeRotation=\\(Pitch=([+-\\d.]+),\\s*Yaw=([+-\\d.]+),\\s*Roll=([+-\\d.]+)\\)"), QString("RelativeRotation=(Pith=%1,Yaw=%2,Roll=%3)").arg(Rotation[0]).arg(Rotation[1]).arg(Rotation[2]));
                 }
 
-
-
                 float fDrawScale = 1.0;
                 // В UE4 одиниці в 2 рази менші (але скейл міняти не треба =) )
                 float d3Scale [3]={1.f, 1.0f, 1.0f};
@@ -446,6 +463,37 @@ void MainWindow::on_pasteText_textChanged()
                 // o_O
                 str = str.replace("\r\n\r\n", "\r\n").replace("\n\n", "\n").replace("\r\r", "\r").replace("\r\n\r\n", "\r\n");
                 resultStr += "\r\n      Begin Actor "+str+"\r\n      End Actor";
+            }else
+            if(type == "PointLight" || type == "PointLightMovable"){
+                QString ResCurr = "      Begin Actor Class=PointLight Name=PointLight_666 Archetype=PointLight'/Script/Engine.Default__PointLight'\
+\r\n         Begin Object Class=PointLightComponent Name=\"LightComponent0\" Archetype=PointLightComponent'/Script/Engine.Default__PointLight:LightComponent0'\
+\r\n         End Object\
+\r\n         Begin Object Name=\"LightComponent0\"";
+
+                // Set AttenuationRadius
+                UToGetAndSetSimple("\\s+Radius\\s*=\\s*([^\r\n]+)", "\n            AttenuationRadius="+list[1].trimmed());
+                // Set Intensity
+                UToGetAndSetFloat("\\s+Brightness\\s*=\\s*([^\r\n]+)", QString("\n            Intensity=%1").arg(val*5000.f), 1);
+                // Set LightColor
+                UToGetAndSetSimple("\\s+LightColor\\s*=\\s*([^\r\n]+)A", "\n            LightColor="+list[1]+"A=255)");
+                // Set Location
+                UToGetAndSetSimple("\\s+(?:Relative)?Location\\s*=\\s*([^\r\n]+)", "\n            RelativeLocation="+list[1]);
+                // Cast StaticShadows
+                UToGetAndSetSimple("\\s+CastStaticShadows\\s*=\\s*(True|False)", "\n            CastStaticShadows="+list[1]);
+                // Cast DynamicShadows
+                UToGetAndSetSimple("\\s+CastDynamicShadows\\s*=\\s*(True|False)", "\n            CastDynamicShadows="+list[1]);
+                // Set Tag
+                UToGetAndSetSimple("\\s+Tag\\s*=\\s*\"([^\"\r\n]+)\"", "\n            Tag(0)=\""+list[1]+"\"");
+                // Transfer Layer to Tag
+                UToGetAndSetSimple("\\s+Layer\\s*=\\s*\"([^\"\r\n]+)\"", "\n            Tag(1)=\""+list[1]+"\"");
+
+                ResCurr+="\n         End Object\
+\r\n         PointLightComponent=LightComponent0\
+\r\n         LightComponent=LightComponent0\
+\r\n         RootComponent=LightComponent0\
+\r\n         ActorLabel=\"PointLight\"\
+\r\n      End Actor";
+                resultStr += "\r\n"+ResCurr;
             }
         }
         actors.clear();
