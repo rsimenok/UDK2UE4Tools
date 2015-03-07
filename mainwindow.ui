@@ -24,7 +24,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
@@ -683,6 +683,105 @@
            <string>Settings</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="2">
+            <widget class="QCheckBox" name="UScriptConvSett_AAdvanced_3">
+             <property name="toolTip">
+              <string>Auto set advanced to override property</string>
+             </property>
+             <property name="statusTip">
+              <string>Auto set advanced to override property</string>
+             </property>
+             <property name="whatsThis">
+              <string>UScript converter settings</string>
+             </property>
+             <property name="text">
+              <string>none</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QCheckBox" name="UScriptConvSett_AAdvanced_4">
+             <property name="toolTip">
+              <string>Auto set advanced to override property</string>
+             </property>
+             <property name="statusTip">
+              <string>Auto set advanced to override property</string>
+             </property>
+             <property name="whatsThis">
+              <string>UScript converter settings</string>
+             </property>
+             <property name="text">
+              <string>none</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="UScriptConvSett_DefSUP">
+             <property name="toolTip">
+              <string>Default uproperty for structs</string>
+             </property>
+             <property name="statusTip">
+              <string>Default uproperty for structs</string>
+             </property>
+             <property name="whatsThis">
+              <string>UScript converter settings</string>
+             </property>
+             <property name="placeholderText">
+              <string>Default uproperty for structs</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLineEdit" name="UScriptConvSett_DefUP">
+             <property name="toolTip">
+              <string>Default uproperty</string>
+             </property>
+             <property name="statusTip">
+              <string>Default uproperty</string>
+             </property>
+             <property name="whatsThis">
+              <string>UScript converter settings</string>
+             </property>
+             <property name="text">
+              <string>BlueprintReadWrite</string>
+             </property>
+             <property name="placeholderText">
+              <string>Default uproperty</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QCheckBox" name="UScriptConvSett_AAdvanced_5">
+             <property name="toolTip">
+              <string>Auto set advanced to override property</string>
+             </property>
+             <property name="statusTip">
+              <string>Auto set advanced to override property</string>
+             </property>
+             <property name="whatsThis">
+              <string>UScript converter settings</string>
+             </property>
+             <property name="text">
+              <string>none</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLineEdit" name="UScriptConvSett_DefUS">
+             <property name="toolTip">
+              <string>Default ustruct</string>
+             </property>
+             <property name="statusTip">
+              <string>Default ustruct</string>
+             </property>
+             <property name="whatsThis">
+              <string>UScript converter settings</string>
+             </property>
+             <property name="placeholderText">
+              <string>Default ustruct</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0">
             <widget class="QCheckBox" name="UScriptConvSett_AAdvanced">
              <property name="toolTip">
@@ -721,102 +820,13 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
-            <widget class="QCheckBox" name="UScriptConvSett_AAdvanced_3">
-             <property name="toolTip">
-              <string>Auto set advanced to override property</string>
-             </property>
-             <property name="statusTip">
-              <string>Auto set advanced to override property</string>
-             </property>
-             <property name="whatsThis">
-              <string>UScript converter settings</string>
-             </property>
+           <item row="2" column="0">
+            <widget class="QLineEdit" name="UScriptConvSett_DeffFun">
              <property name="text">
-              <string>none</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QCheckBox" name="UScriptConvSett_AAdvanced_4">
-             <property name="toolTip">
-              <string>Auto set advanced to override property</string>
-             </property>
-             <property name="statusTip">
-              <string>Auto set advanced to override property</string>
-             </property>
-             <property name="whatsThis">
-              <string>UScript converter settings</string>
-             </property>
-             <property name="text">
-              <string>none</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLineEdit" name="UScriptConvSett_DefUP">
-             <property name="toolTip">
-              <string>Default uproperty</string>
-             </property>
-             <property name="statusTip">
-              <string>Default uproperty</string>
-             </property>
-             <property name="whatsThis">
-              <string>UScript converter settings</string>
-             </property>
-             <property name="text">
-              <string>BlueprintReadWrite</string>
+              <string>BlueprintCallable, Category = &quot;EP | MAnimation&quot;</string>
              </property>
              <property name="placeholderText">
-              <string>Default uproperty</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="UScriptConvSett_DefSUP">
-             <property name="toolTip">
-              <string>Default uproperty for structs</string>
-             </property>
-             <property name="statusTip">
-              <string>Default uproperty for structs</string>
-             </property>
-             <property name="whatsThis">
-              <string>UScript converter settings</string>
-             </property>
-             <property name="placeholderText">
-              <string>Default uproperty for structs</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLineEdit" name="UScriptConvSett_DefUS">
-             <property name="toolTip">
-              <string>Default ustruct</string>
-             </property>
-             <property name="statusTip">
-              <string>Default ustruct</string>
-             </property>
-             <property name="whatsThis">
-              <string>UScript converter settings</string>
-             </property>
-             <property name="placeholderText">
-              <string>Default ustruct</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QCheckBox" name="UScriptConvSett_AAdvanced_5">
-             <property name="toolTip">
-              <string>Auto set advanced to override property</string>
-             </property>
-             <property name="statusTip">
-              <string>Auto set advanced to override property</string>
-             </property>
-             <property name="whatsThis">
-              <string>UScript converter settings</string>
-             </property>
-             <property name="text">
-              <string>none</string>
+              <string>Default ufunction</string>
              </property>
             </widget>
            </item>

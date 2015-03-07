@@ -260,6 +260,14 @@ void MainWindow::on_UScriptSource_textChanged()
     To << "\\1\\2;";
     Regs << QRegExp("(\\s*)UPROPERTY\\(([^\r\n]*)\\)(\\s*)transient ([^;\r\n]+);", Qt::CaseInsensitive);
     To << "\\1UPROPERTY(Transient, \\2)\\3\\4;";
+    Regs << QRegExp("Config\\s+UPROPERTY\\s*\\(", Qt::CaseInsensitive);
+    To << "UPROPERTY(Config, ";
+    Regs << QRegExp("GlobalConfig\\s+UPROPERTY\\s*\\(", Qt::CaseInsensitive);
+    To << "UPROPERTY(GlobalConfig, ";
+    Regs << QRegExp("(\\s*)UPROPERTY\\(([^\r\n]*)\\)(\\s*)Config ([^;\r\n]+);", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY(Config, \\2)\\3\\4;";
+    Regs << QRegExp("(\\s*)UPROPERTY\\(([^\r\n]*)\\)(\\s*)GlobalConfig ([^;\r\n]+);", Qt::CaseInsensitive);
+    To << "\\1UPROPERTY(GlobalConfig, \\2)\\3\\4;";
     Regs << QRegExp("(UPROPERTY\\([^\r\n]*),\\s*\\)", Qt::CaseInsensitive);
     To << "\\1)";
     Regs << QRegExp("(UPROPERTY\\()\\s*,([^\r\n]*\\))", Qt::CaseInsensitive);
@@ -278,6 +286,7 @@ void MainWindow::on_UScriptSource_textChanged()
     UToReplVarType("vector2d", "FVector2D");
     UToReplVarType("rotator", "FRotator");
     UToReplVarType("int", "int32");
+    UToReplVarType("byte", "uint8");
     UToReplVarType("Actor", "AActor*");
     UToReplVarType("string", "FString");
     UToReplVarType("name", "FName");
@@ -341,6 +350,22 @@ void MainWindow::on_UScriptSource_textChanged()
     // Add default uproperty for structs
     Regs << QRegExp("(struct [^{\r\n}]+\\s*\\{\\s*[^}]*)UPROPERTY\\(", Qt::CaseInsensitive);
     To << "\\1UPROPERTY("+ui->UScriptConvSett_DefSUP->text();
+
+    // Add default ufunction for void function
+    Regs << QRegExp("([\\t ]*)function\\s+(\\S+)\\s+([^{\r\n(}]+\\s*\\([^{\r\n}]+\\s*\\{)", Qt::CaseInsensitive);
+    To << "\\1UFUNCTION("+ui->UScriptConvSett_DeffFun->text()+")\r\n\\1\\2 \\3";
+
+    // Add default ufunction for function
+    Regs << QRegExp("([\\t ]*)function\\s+([^{\r\n}]+\\s*\\{)", Qt::CaseInsensitive);
+    To << "\\1UFUNCTION("+ui->UScriptConvSett_DeffFun->text()+")\r\n\\1void \\2";
+
+    // Clear "local"
+    Regs << QRegExp("local\\s+([^\r\n;]+);", Qt::CaseInsensitive);
+    To << "\\1;";
+
+    // Exec modoficator
+    Regs << QRegExp("exec\\s+UFUNCTION\\(", Qt::CaseInsensitive);
+    To << "UFUNCTION(Exec, ";
 
     QReplace(Source, Regs, To);
 
@@ -521,6 +546,117 @@ void MainWindow::on_pasteText_textChanged()
 \r\n         LightComponent=LightComponent0\
 \r\n         RootComponent=LightComponent0\
 \r\n         ActorLabel=\"PointLight_%1\"\
+\r\n      End Actor").arg(uNumb);
+                resultStr += "\r\n"+ResCurr;
+            }else
+            if(type == "CEEnemy_Eggs_health"){
+                QString ResCurr = "      Begin Actor Class=EP_02_Egg_C Name=EP_02_Egg_C_9 Archetype=EP_02_Egg_C'/Game/EP_02/BluePrints/EP_02_Egg.Default__EP_02_Egg_C'\
+\r\n         Begin Object Class=SkeletalMeshComponent Name=\"SkeletalMeshComponent0\" Archetype=SkeletalMeshComponent'/Game/EP_02/BluePrints/EP_02_Egg.Default__EP_02_Egg_C:SkeletalMeshComponent0'\
+\r\n         End Object\
+\r\n         Begin Object Class=SphereComponent Name=\"ActivateSphere\" Archetype=SphereComponent'/Game/EP_02/BluePrints/EP_02_Egg.EP_02_Egg_C:SphereComponent_0'\
+\r\n            Begin Object Class=BodySetup Name=\"BodySetup_%1\"\
+\r\n            End Object\
+\r\n         End Object\
+\r\n         Begin Object Class=StaticMeshComponent Name=\"Marker\" Archetype=StaticMeshComponent'/Game/EP_02/BluePrints/EP_02_Egg.EP_02_Egg_C:StaticMeshComponent_25'\
+\r\n         End Object\
+\r\n         Begin Object Class=StaticMeshComponent Name=\"Shell\" Archetype=StaticMeshComponent'/Game/EP_02/BluePrints/EP_02_Egg.EP_02_Egg_C:StaticMeshComponent_22'\
+\r\n         End Object\
+\r\n         Begin Object Class=StaticMeshComponent Name=\"Enemy\" Archetype=StaticMeshComponent'/Game/EP_02/BluePrints/EP_02_Egg.EP_02_Egg_C:StaticMeshComponent_18'\
+\r\n         End Object\
+\r\n         Begin Object Name=\"SkeletalMeshComponent0\"";
+                ResCurr = ResCurr.arg(uNumb);
+
+                // Set Location
+                UToGetAndSetSimple("\\s+Location\\s*=\\s*([^\r\n]+)", "\n            RelativeLocation="+list[1].trimmed());
+                // Set Rotation
+                UToGetAndSetSimple("\\s+Rotation\\s*=\\s*([^\r\n]+)", "\n            RelativeRotation="+list[1].trimmed());
+
+                float fDrawScale = 1.0;
+                float d3Scale [3]={1.f, 1.f, 1.f};
+                if (str.contains("DrawScale=")) {
+                     QRegExp matcher("DrawScale=([^\r\n]+)");
+                     int i = matcher.indexIn(str);
+                     if (i!=-1) {
+                         QStringList list = matcher.capturedTexts();
+                         QStringList::iterator it = list.begin();
+                         for ( ++it ;it!=list.end(); it++) {
+                            fDrawScale = it->toFloat();
+                         }
+                     }
+                     str = str.replace(QRegExp("\\s*DrawScale=[^\r\n]+[\r\n]*"), "");
+                }
+                if (str.contains("DrawScale3D=")) {
+                     QRegExp matcher("DrawScale3D=\\(X=([+-\\d.]+),Y=([+-\\d.]+),Z=([+-\\d.]+)\\)");
+                     int i = matcher.indexIn(str);
+                     if (i!=-1) {
+                         QStringList list = matcher.capturedTexts();
+                         QStringList::iterator it = list.begin();
+                         int q = 0;
+                         for ( ++it ;it!=list.end(); it++) {
+                             d3Scale [q++] = it->toFloat();
+                         }
+                     }
+                     str = str.replace(QRegExp("\\s*DrawScale3D=[^\r\n]+[\r\n]*"), "");
+                }
+                fDrawScale /= 1.5;
+                for (int i = 0; i<3; i++) {
+                    d3Scale[i] *= fDrawScale * ConvSettCurrScale[i];
+                }
+                QString scalePattern = "(X=%1,Y=%2,Z=%3)";
+                scalePattern = scalePattern.arg(d3Scale[0]).arg(d3Scale[1]).arg(d3Scale[2]);
+                ResCurr+="\n            RelativeScale3D="+scalePattern;
+                ResCurr+= QString("\r\n         End Object\
+\r\n         Begin Object Name=\"ActivateSphere\"\
+\r\n            Begin Object Name=\"BodySetup_%1\"\
+\r\n               CollisionTraceFlag=CTF_UseSimpleAsComplex\
+\r\n            End Object").arg(uNumb);
+                // Set SphereRadius
+                UToGetAndSetFloat("\\s+ActivationRadius\\s*=\\s*([^\r\n]+)", QString("\n            SphereRadius=%1").arg(val*GlobalArgScale), 1);
+                ResCurr+="\n            BodyInstance="+scalePattern;
+                ResCurr+= QString("            OnComponentBeginOverlap=(EP_02_Egg_C_9.BndEvt__ActivateSphere_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature)\
+\r\n            OnComponentEndOverlap=(EP_02_Egg_C_9.BndEvt__ActivateSphere_K2Node_ComponentBoundEvent_5_ComponentEndOverlapSignature__DelegateSignature)\
+\r\n            AttachParent=SkeletalMeshComponent0\
+\r\n            bNetAddressable=True\
+\r\n            CreationMethod=SimpleConstructionScript\
+\r\n         End Object\
+\r\n         Begin Object Name=\"Marker\"\
+\r\n            BodyInstance=(Scale3D=(X=2.500000,Y=0.001250,Z=2.500000))\
+\r\n            AttachParent=SkeletalMeshComponent0\
+\r\n            bNetAddressable=True\
+\r\n            CreationMethod=SimpleConstructionScript\
+\r\n         End Object\
+\r\n         Begin Object Name=\"Shell\"\
+\r\n            BodyInstance=(Scale3D=(X=0.200000,Y=0.200000,Z=0.200000))\
+\r\n            AttachParent=SkeletalMeshComponent0\
+\r\n            bNetAddressable=True\
+\r\n            CreationMethod=SimpleConstructionScript\
+\r\n         End Object\
+\r\n         Begin Object Name=\"Enemy\"\
+\r\n            BodyInstance=(Scale3D=(X=0.125000,Y=0.125000,Z=0.125000))\
+\r\n            AttachParent=SkeletalMeshComponent0\
+\r\n            bNetAddressable=True\
+\r\n            CreationMethod=SimpleConstructionScript\
+\r\n         End Object\
+\r\n         ActivateSphere=ActivateSphere\
+\r\n         Marker=Marker\
+\r\n         Shell=Shell\
+\r\n         Enemy=Enemy").arg(uNumb);
+                // Set SphereRadius
+                UToGetAndSetFloat("\\s+RotateAni\\s*=\\s*\\(\\s*EndTime\\s*=\\s*([^\r\n]+)", QString("\n         RotateSpeed=(Pitch=0.000000,Yaw=%1,Roll=0.000000)").arg(360.0 / val), 1);
+                // Set Health
+                UToGetAndSetSimple("\\s+Health\\s*=\\s*([^\r\n]+)", "\n            Healths="+list[1].trimmed());
+                // Set Tag
+                UToGetAndSetSimple("\\s+Tag\\s*=\\s*\"([^\"\r\n]+)\"", "\n            Tag(0)=\""+list[1]+"\"");
+                // Transfer Layer to Tag
+                UToGetAndSetSimple("\\s+Layer\\s*=\\s*\"([^\"\r\n]+)\"", "\n            Tag(1)=\""+list[1]+"\"");
+                // Set SphereRadius
+                UToGetAndSetFloat("\\s+ActivationRadius\\s*=\\s*([^\r\n]+)", QString("\n            SphereRadius=%1").arg(val*GlobalArgScale), 1);
+                ResCurr+= QString("\r\n         fxc=BP_FishEyeCamera_C'/Game/Maps/EP_02.EP_02:PersistentLevel.BP_FishEyeCamera_C_0'\
+\r\n         DestroyEff=\"EggsDead\"\
+\r\n         AnimationsList(0)=(Settings=(EndTime=2.000000))\
+\r\n         SkeletalMeshComponent=SkeletalMeshComponent0\
+\r\n         RootComponent=SkeletalMeshComponent0\
+\r\n         ActorLabel=\"EP_02_Egg%1\"\
 \r\n      End Actor").arg(uNumb);
                 resultStr += "\r\n"+ResCurr;
             }
